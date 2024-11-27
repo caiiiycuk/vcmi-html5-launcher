@@ -1,16 +1,17 @@
 import { configureStore, createSlice } from "@reduxjs/toolkit";
-import { loadResource } from "./resource";
 
 export let VCMI_MODULE: any = {};
 
 const initialUiState: {
+    lang: "ru" | "en",
     dataUrl: string,
     wasmUrl: string,
-    step: "HAVE_URLS" | "LOADING_DATA" | "LOADING_WASM" | "READY_TO_RUN" | "STARTED",
+    step: "DATA_SELECT" | "LOADING_DATA" | "LOADING_WASM" | "READY_TO_RUN" | "STARTED",
 } = {
+    lang: navigator.language.startsWith("ru") ? "ru" : "en",
     dataUrl: "vcmi/vcmi.data.js",
     wasmUrl: "vcmi/vcmiclient.js",
-    step: "HAVE_URLS",
+    step: "DATA_SELECT",
 };
 
 export const uiSlice = createSlice({
@@ -20,9 +21,12 @@ export const uiSlice = createSlice({
         step: (state, a: { payload: typeof initialUiState.step }) => {
             state.step = a.payload;
 
-            if (state.step === "HAVE_URLS") {
+            if (state.step === "DATA_SELECT") {
                 VCMI_MODULE = {};
             }
+        },
+        setDataUrl: (state, a: { payload: string }) => {
+            state.dataUrl = a.payload;
         },
     }
 });
