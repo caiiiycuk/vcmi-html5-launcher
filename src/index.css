@@ -2,3 +2,16 @@
 /* @tailwind base; */
 @tailwind components;
 @tailwind utilities;
+
+html,
+body,
+#app {
+    height: 100%;
+    overflow: hidden;
+}
+
+#app {
+    background-image: url("main_bg_image.jpg");
+    background-position: center;
+    background-size: cover;
+}

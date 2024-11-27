@@ -11,6 +11,11 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         data_directory: "Установленная игра",
         data_db: "Ранее загруженные",
         next: "Продолжить",
+        back: "Назад",
+        loading_data_title: "Загрузка данных...",
+        error: "Ошибка",
+        open_browser_logs: "Откройте лог браузера для подробной информации...",
+        start_the_game: "Start the game",
     },
     en: {
         title: "Heroes Of Might And Magic III",
@@ -21,6 +26,11 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         data_directory: "Installed game",
         data_db: "Already uploaded",
         next: "Next",
+        back: "Back",
+        loading_data_title: "Downloading data...",
+        error: "Error",
+        open_browser_logs: "Open browser log for more info...",
+        start_the_game: "Start the game",
     },
 };
 

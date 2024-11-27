@@ -9,7 +9,7 @@ const initialUiState: {
     step: "DATA_SELECT" | "LOADING_DATA" | "LOADING_WASM" | "READY_TO_RUN" | "STARTED",
 } = {
     lang: navigator.language.startsWith("ru") ? "ru" : "en",
-    dataUrl: "vcmi/vcmi.data.js",
+    dataUrl: localStorage.getItem("vcmi.dataUrl") ?? "vcmi/vcmi.data.js",
     wasmUrl: "vcmi/vcmiclient.js",
     step: "DATA_SELECT",
 };
@@ -27,6 +27,7 @@ export const uiSlice = createSlice({
         },
         setDataUrl: (state, a: { payload: string }) => {
             state.dataUrl = a.payload;
+            localStorage.setItem("vcmi.dataUrl", a.payload);
         },
     }
 });
