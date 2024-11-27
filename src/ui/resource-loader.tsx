@@ -1,14 +1,17 @@
 import { useEffect, useState } from "preact/hooks";
 import { loadResource } from "../util/resource";
-import { uiSlice, VCMI_MODULE } from "../util/store";
-import { useDispatch } from "react-redux";
+import { State, uiSlice, VCMI_DATA, VCMI_MODULE } from "../util/store";
+import { useDispatch, useSelector } from "react-redux";
 import { wasmInstantiate } from "../util/wasm";
 import { useT } from "../i18n";
 
 export function Loader(props: {
-    url: string,
     resourceType: "datafile" | "wasm",
 }) {
+    const dataUrl = useSelector((state: State) => state.ui.vcmiDataUrl);
+    const homm3DataUrl = useSelector((state: State) => state.ui.homm3DataUrl);
+    const wasmUrl = useSelector((state: State) => state.ui.wasmUrl);
+    const [file, setFile] = useState<string>("");
     const [progress, setProgress] = useState<number>(0);
     const [error, setError] = useState<string | null>(null);
     const dispatch = useDispatch();
@@ -17,18 +20,30 @@ export function Loader(props: {
         setError(null);
         (async () => {
             if (props.resourceType === "datafile") {
-                const jsPromise = loadResource(props.url, "text", () => { });
-                const dataPromise = loadResource(props.url.substring(0, props.url.length - 3), "arraybuffer", setProgress);
+                // load vcmi data
+                setFile("VCMI/Data");
+                const jsPromise = loadResource(dataUrl, "text", () => { });
+                const dataPromise = loadResource(dataUrl.substring(0, dataUrl.length - 3), "arraybuffer", setProgress);
                 const [js, data] = await Promise.all([jsPromise, dataPromise]);
 
                 const Module = VCMI_MODULE;
                 Module.getPreloadedPackage = (name: any, size: any) => data;
                 eval(js as string);
 
+                // load homm3 data
+                for (const next of Object.keys(VCMI_DATA)) {
+                    if (VCMI_DATA[next] === null) {
+                        setFile("HOMM3/" + next);
+                        VCMI_DATA[next] = new Uint8Array(await loadResource(
+                            homm3DataUrl + "/Data/" + next, "arraybuffer", setProgress) as any);
+                    }
+                }
+
                 dispatch(uiSlice.actions.step("LOADING_WASM"));
             } else if (props.resourceType === "wasm") {
+                setFile("VCMI/WebAssembly")
                 const script = document.createElement("script");
-                script.src = props.url;
+                script.src = wasmUrl;
                 script.onload = () => {
                     const Module = VCMI_MODULE;
 
@@ -36,7 +51,7 @@ export function Loader(props: {
                         info: Record<string, Record<string, WebAssembly.ImportValue>>,
                         receiveInstance: (i: WebAssembly.Instance, m: WebAssembly.Module) => Promise<any>,
                     ) => {
-                        const wasm: Response = await loadResource(props.url.substring(0, props.url.length - 3) + ".wasm", "response", setProgress) as Response;
+                        const wasm: Response = await loadResource(wasmUrl.substring(0, wasmUrl.length - 3) + ".wasm", "response", setProgress) as Response;
                         const instance = await wasmInstantiate(wasm, info);
                         return receiveInstance(instance.instance, instance.wasmModule);
                     };
@@ -55,16 +70,12 @@ export function Loader(props: {
                     setError(e + "");
                 };
                 document.head.appendChild(script);
-                // const wasmJs = await loadResource(props.url, "text") as string;
-                // eval(wasmJs);
-                // const fn = new (Function as any)(["Module"], wasmJs);
-                // fn(Module);
             }
         })().catch((e) => {
             setError(e.message ?? "unknown error");
             console.error(e);
         });
-    }, [props.url, props.resourceType]);
+    }, [dataUrl, wasmUrl, homm3DataUrl, props.resourceType]);
 
     return <div class="flex flex-col">
         <article class="pt-0" role="tabpanel">
@@ -73,6 +84,7 @@ export function Loader(props: {
                 <progress class="w-full mr-2" max="100" value={progress}></progress>
                 <span>{progress}%</span>
             </div>
+            <p class="text-gray-600">{file}</p>
         </article>
         {error &&
             <div class="mx-2 font-mono">

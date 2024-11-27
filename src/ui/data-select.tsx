@@ -6,7 +6,7 @@ import { useState } from "preact/hooks";
 export function DataSelect() {
     const t = useT();
     const dispatch = useDispatch();
-    const dataUrl = useSelector((state: State) => state.ui.dataUrl);
+    const dataUrl = useSelector((state: State) => state.ui.homm3DataUrl);
     const [dataType, setDataType] = useState<"file" | "url" | "db">("url");
 
     return <div class="flex flex-col">
@@ -64,9 +64,4 @@ export function DataSelect() {
             {t("next")}
         </button>
     </div>;
-
-    return <div>
-        <button class="btn btn-xl" >Press to start</button>
-    </div>
-
 }

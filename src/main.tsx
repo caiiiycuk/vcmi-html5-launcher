@@ -13,18 +13,16 @@ import { VCMIConfig } from "./ui/vcmi-config";
 
 function Page() {
     const state = useSelector((state: State) => state.ui.step);
-    const dataUrl = useSelector((state: State) => state.ui.dataUrl);
-    const wasmUrl = useSelector((state: State) => state.ui.wasmUrl);
 
     switch (state) {
         case "DATA_SELECT": {
             return <DataSelect />;
         };
         case "LOADING_DATA": {
-            return <Loader url={dataUrl} resourceType="datafile" />;
+            return <Loader resourceType="datafile" />;
         };
         case "LOADING_WASM":
-            return <Loader url={wasmUrl} resourceType="wasm" />;
+            return <Loader resourceType="wasm" />;
         case "READY_TO_RUN":
             return <VCMIConfig />;
     }

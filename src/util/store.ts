@@ -1,15 +1,25 @@
 import { configureStore, createSlice } from "@reduxjs/toolkit";
 
 export let VCMI_MODULE: any = {};
+export const VCMI_DATA: {[file: string]: Uint8Array | null} = {
+    "H3ab_ahd.snd": null,
+    "H3ab_bmp.lod": null,
+    "H3ab_spr.lod": null,
+    "H3bitmap.lod": null,
+    "H3sprite.lod": null,
+    "Heroes3.snd": null,
+};
 
 const initialUiState: {
     lang: "ru" | "en",
-    dataUrl: string,
+    homm3DataUrl: string,
+    vcmiDataUrl: string,
     wasmUrl: string,
     step: "DATA_SELECT" | "LOADING_DATA" | "LOADING_WASM" | "READY_TO_RUN" | "STARTED",
 } = {
     lang: navigator.language.startsWith("ru") ? "ru" : "en",
-    dataUrl: localStorage.getItem("vcmi.dataUrl") ?? "vcmi/vcmi.data.js",
+    homm3DataUrl: localStorage.getItem("vcmi.dataUrl") ?? "vcmi/",
+    vcmiDataUrl: "vcmi/vcmi.data.js",
     wasmUrl: "vcmi/vcmiclient.js",
     step: "DATA_SELECT",
 };
@@ -26,7 +36,7 @@ export const uiSlice = createSlice({
             }
         },
         setDataUrl: (state, a: { payload: string }) => {
-            state.dataUrl = a.payload;
+            state.homm3DataUrl = a.payload;
             localStorage.setItem("vcmi.dataUrl", a.payload);
         },
     }
