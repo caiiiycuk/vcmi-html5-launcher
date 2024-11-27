@@ -10,5 +10,5 @@ export function VCMIConfig() {
         <button class="self-end" onClick={() => {
             dispatch(uiSlice.actions.step("STARTED"));
         }}>{t("start_the_game")}</button>
-    </div>
+    </div>;
 }

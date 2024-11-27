@@ -3,8 +3,8 @@ import "xp.css";
 import "./index.css";
 
 
-import { Provider, useDispatch, useSelector } from "react-redux";
-import { State, store, uiSlice, VCMI_MODULE } from "./util/store";
+import { Provider, useSelector } from "react-redux";
+import { State, store } from "./util/store";
 import { Loader } from "./ui/resource-loader";
 import { VCMIWindow } from "./ui/vcmi-window";
 import { useT } from "./i18n";
@@ -55,7 +55,7 @@ function App() {
     </div>;
 }
 
-(function () {
+(function() {
     render(
         <Provider store={store}>
             {<App /> as any}

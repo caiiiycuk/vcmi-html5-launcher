@@ -1,6 +1,5 @@
 import { configureStore, createSlice } from "@reduxjs/toolkit";
 
-export let VCMI_MODULE: any = {};
 export const VCMI_DATA: {[file: string]: Uint8Array | null} = {
     "H3ab_ahd.snd": null,
     "H3ab_bmp.lod": null,
@@ -8,6 +7,9 @@ export const VCMI_DATA: {[file: string]: Uint8Array | null} = {
     "H3bitmap.lod": null,
     "H3sprite.lod": null,
     "Heroes3.snd": null,
+};
+
+export let VCMI_MODULE: { homm3Files?: FileList } & any = {
 };
 
 const initialUiState: {
@@ -39,7 +41,7 @@ export const uiSlice = createSlice({
             state.homm3DataUrl = a.payload;
             localStorage.setItem("vcmi.dataUrl", a.payload);
         },
-    }
+    },
 });
 
 export const store = configureStore({

@@ -4,6 +4,7 @@ import { State, uiSlice, VCMI_DATA, VCMI_MODULE } from "../util/store";
 import { useDispatch, useSelector } from "react-redux";
 import { wasmInstantiate } from "../util/wasm";
 import { useT } from "../i18n";
+import { getDB } from "../util/db";
 
 export function Loader(props: {
     resourceType: "datafile" | "wasm",
@@ -31,17 +32,42 @@ export function Loader(props: {
                 eval(js as string);
 
                 // load homm3 data
-                for (const next of Object.keys(VCMI_DATA)) {
-                    if (VCMI_DATA[next] === null) {
-                        setFile("HOMM3/" + next);
-                        VCMI_DATA[next] = new Uint8Array(await loadResource(
-                            homm3DataUrl + "/Data/" + next, "arraybuffer", setProgress) as any);
+                const db = await getDB();
+                const homm3Files: FileList | undefined = VCMI_MODULE.homm3Files;
+                if (homm3Files) {
+                    delete VCMI_MODULE.homm3Files;
+                    setFile("Searching in " + homm3Files.length + " files");
+                    let processed = 0;
+                    for (const next of homm3Files) {
+                        if (VCMI_DATA[next.name] === null) {
+                            setFile("Uploading " + next.name);
+                            VCMI_DATA[next.name] = new Uint8Array(await next.arrayBuffer());
+                            db.put(next.name, VCMI_DATA[next.name]!).catch(console.error);
+                        }
+                        processed++;
+                        setProgress(Math.round(processed / homm3Files.length));
+                    }
+                    setFile("Validating...");
+                    setProgress(100);
+                    for (const next of Object.keys(VCMI_DATA)) {
+                        if (VCMI_DATA[next] === null) {
+                            throw new Error("File " + next + " not found in uploads!");
+                        }
+                    }
+                } else {
+                    for (const next of Object.keys(VCMI_DATA)) {
+                        if (VCMI_DATA[next] === null) {
+                            setFile("HOMM3/" + next);
+                            VCMI_DATA[next] = new Uint8Array(await loadResource(
+                                homm3DataUrl + "/Data/" + next, "arraybuffer", setProgress) as any);
+                            db.put(next, VCMI_DATA[next]).catch(console.error);
+                        }
                     }
                 }
 
                 dispatch(uiSlice.actions.step("LOADING_WASM"));
             } else if (props.resourceType === "wasm") {
-                setFile("VCMI/WebAssembly")
+                setFile("VCMI/WebAssembly");
                 const script = document.createElement("script");
                 script.src = wasmUrl;
                 script.onload = () => {
@@ -51,11 +77,13 @@ export function Loader(props: {
                         info: Record<string, Record<string, WebAssembly.ImportValue>>,
                         receiveInstance: (i: WebAssembly.Instance, m: WebAssembly.Module) => Promise<any>,
                     ) => {
-                        const wasm: Response = await loadResource(wasmUrl.substring(0, wasmUrl.length - 3) + ".wasm", "response", setProgress) as Response;
+                        const wasm: Response = await loadResource(wasmUrl.substring(0, wasmUrl.length - 3) + ".wasm",
+                            "response", setProgress) as Response;
                         const instance = await wasmInstantiate(wasm, info);
                         return receiveInstance(instance.instance, instance.wasmModule);
                     };
 
+                    /* eslint-disable-next-line new-cap */
                     (window as any).VCMI(Module)
                         .then(() => {
                             dispatch(uiSlice.actions.step("READY_TO_RUN"));
@@ -92,7 +120,7 @@ export function Loader(props: {
                 <p class="text-red-500 font-bold">{error}</p>
                 <p class="text-gray-600">{t("open_browser_logs")}</p>
                 <button onClick={() => {
-                    dispatch(uiSlice.actions.step("DATA_SELECT"))
+                    dispatch(uiSlice.actions.step("DATA_SELECT"));
                 }}>{t("back")}</button>
             </div>
         }

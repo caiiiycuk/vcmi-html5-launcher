@@ -1,13 +1,52 @@
 import { useDispatch, useSelector } from "react-redux";
-import { State, uiSlice } from "../util/store";
+import { State, uiSlice, VCMI_DATA, VCMI_MODULE } from "../util/store";
 import { useT } from "../i18n";
-import { useState } from "preact/hooks";
+import { useEffect, useState } from "preact/hooks";
+import { getDB } from "../util/db";
 
 export function DataSelect() {
     const t = useT();
     const dispatch = useDispatch();
     const dataUrl = useSelector((state: State) => state.ui.homm3DataUrl);
     const [dataType, setDataType] = useState<"file" | "url" | "db">("url");
+    const [hoMM3InDB, setHoMM3InDB] = useState<boolean>(false);
+    const [dbReady, setDBReady] = useState<boolean>(false);
+
+    useEffect(() => {
+        const onend = () => {
+            setDBReady(true);
+            let hoMM3InDB = true;
+            for (const next of Object.keys(VCMI_DATA)) {
+                if (VCMI_DATA[next] === null) {
+                    hoMM3InDB = false;
+                    break;
+                }
+            }
+
+            if (hoMM3InDB) {
+                setHoMM3InDB(hoMM3InDB);
+                setDataType("db");
+            }
+        };
+
+        (async () => {
+            try {
+                const db = await getDB();
+                await db.forEach((key, value) => {
+                    if (VCMI_DATA[key] !== undefined) {
+                        VCMI_DATA[key] = value;
+                    }
+                });
+            } catch (e) {
+                console.error(e);
+            } finally {
+                onend();
+            }
+        })().catch((e) => {
+            console.error(e);
+            onend();
+        });
+    }, []);
 
     return <div class="flex flex-col">
         <article class="pt-0" role="tabpanel">
@@ -16,8 +55,10 @@ export function DataSelect() {
                 {t("legal_text")}
             </p>
             <p class="mt-2">
-                [1] — <a href="https://github.com/vcmi/" target="_blank">VCMI</a> ;
-                [2] — <a href="https://www.gog.com/en/game/heroes_of_might_and_magic_3_complete_edition" target="_blank">HoMM3</a>
+                [1] — <a href="https://github.com/vcmi/"
+                    target="_blank">VCMI</a> ;
+                [2] — <a href="https://www.gog.com/en/game/heroes_of_might_and_magic_3_complete_edition"
+                    target="_blank">HoMM3</a>
             </p>
             <div class="field-row mt-4">
                 <input checked type="checkbox" disabled id="confirm_legal_copy" />
@@ -29,15 +70,23 @@ export function DataSelect() {
         <fieldset>
             <legend>{t("data_source")}</legend>
             <div class="field-row">
-                <input checked={dataType === "file"} onSelect={() => setDataType("file")}
+                <input disabled={!dbReady} checked={dataType === "file"}
+                    onSelect={() => setDataType("file")}
                     id="data-directory" type="radio" name="data-source" />
                 <label for="data-directory">{t("data_directory")}</label>
             </div>
             <div class="field-row">
-                <input class="ml-4" id="data-file" type="file" name="data-file" webkitdirectory />
+                <input class="ml-4" id="data-file" type="file" name="data-file"
+                    {... { webkitdirectory: true, directory: true }}
+                    onChange={(e) => {
+                        if (e.currentTarget.files !== null) {
+                            setDataType("file");
+                            VCMI_MODULE.homm3Files = e.currentTarget.files;
+                        }
+                    }}/>
             </div>
             <div class="field-row">
-                <input checked={dataType === "url"}
+                <input disabled={!dbReady} checked={dataType === "url"}
                     onSelect={() => setDataType("url")}
                     id="data-url" type="radio" name="data-source" />
                 <label for="data-url">URL</label>
@@ -51,17 +100,28 @@ export function DataSelect() {
                     value={dataUrl} />
             </div>
             <div class="field-row">
-                <input checked={dataType === "db"} onSelect={() => setDataType("db")}
+                <input disabled={!hoMM3InDB} checked={dataType === "db"} onSelect={() => setDataType("db")}
                     id="data-db" type="radio" name="data-source" />
                 <label for="data-db">{t("data_db")}</label>
             </div>
         </fieldset>
-        <button class="self-end"
-            onClick={() => {
-                dispatch(uiSlice.actions.step("LOADING_DATA"));
-            }}
-        >
-            {t("next")}
-        </button>
+        {dbReady &&
+            <button class="self-end"
+                onClick={() => {
+                    if (dataType !== "db") {
+                        for (const next of Object.keys(VCMI_DATA)) {
+                            VCMI_DATA[next] = null;
+                        }
+                    }
+                    if (dataType !== "file") {
+                        delete VCMI_MODULE.homm3Files;
+                    }
+                    dispatch(uiSlice.actions.step("LOADING_DATA"));
+                }}
+            >
+                {t("next")}
+            </button>}
+        {!dbReady &&
+            <p class="self-end font-bold my-1 text-gray-400">{t("loading_db")}</p>}
     </div>;
 }

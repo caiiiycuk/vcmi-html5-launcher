@@ -9,31 +9,33 @@ export function VCMIWindow() {
             const parent = canvas.parentElement!;
             const onResize = () => {
                 const bounds = parent.getBoundingClientRect();
-                const { width, height } = getSizeWithAspectRatio(bounds.width, bounds.height, canvas.width / canvas.height);
+                const { width, height } = getSizeWithAspectRatio(
+                    bounds.width, bounds.height, canvas.width / canvas.height);
                 canvas.style.position = "absolute";
                 canvas.style.top = (bounds.height / 2 - height / 2) + "px";
                 canvas.style.left = (bounds.width / 2 - width / 2) + "px";
                 canvas.style.width = width + "px";
                 canvas.style.height = height + "px";
-            }
+            };
             onResize();
             const observer = new ResizeObserver(onResize);
             observer.observe(parent);
 
             VCMI_MODULE.canvas = canvas;
-            
-            VCMI_MODULE.FS.createPath("/", "Data")
+
+            VCMI_MODULE.FS.createPath("/", "Data");
             for (const next of Object.keys(VCMI_DATA)) {
                 if (VCMI_DATA[next] !== null) {
                     VCMI_MODULE.FS.createDataFile("/Data/" + next, null, VCMI_DATA[next], true, true, true);
+                    VCMI_DATA[next] = null;
                 }
             }
 
-            VCMI_MODULE.FS.createDataFile("/config/settings.json", null, 
+            VCMI_MODULE.FS.createDataFile("/config/settings.json", null,
                 new TextEncoder().encode(`{
-	                "general" : {
-		                "language" : "english",
-	                },
+                    "general" : {
+                        "language" : "english",
+                    },
                     "video" : {
                         "resolution" : {
                             "scaling": 100,
@@ -48,7 +50,7 @@ export function VCMIWindow() {
             VCMI_MODULE.callMain();
             return () => {
                 observer.unobserve(parent);
-            }
+            };
         }
     }, [canvasRef]);
     return <div class="w-full h-full relative">
