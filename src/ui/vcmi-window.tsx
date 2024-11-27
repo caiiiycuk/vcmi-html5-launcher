@@ -29,6 +29,21 @@ export function VCMIWindow() {
                 }
             }
 
+            VCMI_MODULE.FS.createDataFile("/config/settings.json", null, 
+                new TextEncoder().encode(`{
+	                "general" : {
+		                "language" : "english",
+	                },
+                    "video" : {
+                        "resolution" : {
+                            "scaling": 100,
+                            "height": ${innerHeight},
+                            "width": ${innerWidth}
+                        }
+                    }
+                }`),
+                true, true, true);
+
             VCMI_MODULE.run();
             VCMI_MODULE.callMain();
             return () => {
