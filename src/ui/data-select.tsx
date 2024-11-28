@@ -1,8 +1,9 @@
 import { useDispatch, useSelector } from "react-redux";
-import { State, uiSlice, VCMI_DATA, VCMI_MODULE } from "../util/store";
+import { State, uiSlice } from "../util/store";
 import { useT } from "../i18n";
 import { useEffect, useState } from "preact/hooks";
-import { getDB } from "../util/db";
+import { getDataDB } from "../util/db";
+import { VCMI_DATA, VCMI_MODULE } from "../util/module";
 
 export function DataSelect() {
     const t = useT();
@@ -31,7 +32,7 @@ export function DataSelect() {
 
         (async () => {
             try {
-                const db = await getDB();
+                const db = await getDataDB();
                 await db.forEach((key, value) => {
                     if (VCMI_DATA[key] !== undefined) {
                         VCMI_DATA[key] = value;

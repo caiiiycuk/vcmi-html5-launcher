@@ -1,6 +1,8 @@
 import { useEffect, useRef } from "preact/hooks";
-import { State, VCMI_DATA, VCMI_MODULE } from "../util/store";
+import { State } from "../util/store";
 import { useSelector } from "react-redux";
+import { VCMI_DATA, VCMI_MODULE } from "../util/module";
+import { getFilesDB } from "../util/db";
 
 export function VCMIWindow() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -23,21 +25,33 @@ export function VCMIWindow() {
             const observer = new ResizeObserver(onResize);
             observer.observe(parent);
 
-            VCMI_MODULE.canvas = canvas;
-
-            VCMI_MODULE.FS.createPath("/", "Data");
-            for (const next of Object.keys(VCMI_DATA)) {
-                if (VCMI_DATA[next] !== null) {
-                    VCMI_MODULE.FS.createDataFile("/Data/" + next, null, VCMI_DATA[next], true, true, true);
-                    VCMI_DATA[next] = null;
+            (async () => {
+                VCMI_MODULE.canvas = canvas;
+                for (const next of Object.keys(VCMI_DATA)) {
+                    if (VCMI_DATA[next] !== null) {
+                        VCMI_MODULE.fsWrite("/Data/" + next, VCMI_DATA[next]);
+                        VCMI_DATA[next] = null;
+                    }
                 }
-            }
 
-            VCMI_MODULE.FS.createDataFile("/config/settings.json", null,
-                new TextEncoder().encode(config), true, true, true);
+                const files = await getFilesDB();
+                await files.forEach((file, value) => {
+                    if (file.indexOf("settings.json") >= 0) {
+                        return;
+                    }
+                    if (value.length > 0) {
+                        VCMI_MODULE.fsWrite(file, value);
+                    }
+                });
 
-            VCMI_MODULE.run();
-            VCMI_MODULE.callMain();
+                VCMI_MODULE.fsWrite(
+                    "/config/settings.json",
+                    new TextEncoder().encode(config));
+
+                VCMI_MODULE.run!();
+                VCMI_MODULE.callMain!();
+            })().catch(console.error);
+
             return () => {
                 observer.unobserve(parent);
             };
@@ -48,8 +62,8 @@ export function VCMIWindow() {
     </div>;
 }
 
-function getSizeWithAspectRatio(width: number, height: number, targetAspect: number):
-    { width: number, height: number} {
+function getSizeWithAspectRatio(width: number,
+                                height: number, targetAspect: number): { width: number, height: number } {
     const screenAspect = width / height;
     if (screenAspect === targetAspect) {
         return { width, height };

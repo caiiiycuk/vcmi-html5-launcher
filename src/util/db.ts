@@ -1,6 +1,6 @@
 export interface DB {
     put: (key: string, data: Uint8Array) => Promise<void>;
-    get: (key: string) => Promise<Uint8Array>;
+    get: (key: string) => Promise<Uint8Array | null>;
     keys: () => Promise<string[]>;
     forEach: (each: (key: string, value: Uint8Array) => void) => Promise<void>;
     close: () => void;
@@ -14,8 +14,8 @@ export class DBNoop implements DB {
         return Promise.resolve();
     }
 
-    public get(key: string): Promise<Uint8Array> {
-        return Promise.reject(new Error("Cache is not supported on this host"));
+    public get(key: string): Promise<Uint8Array | null> {
+        return Promise.resolve(null);
     }
 
     public keys(): Promise<string[]> {
@@ -33,6 +33,7 @@ class IndexedDB implements DB {
     private db: IDBDatabase | null = null;
 
     constructor(
+        name: string,
         onready: (cache: DB) => void,
         onerror: (msg: string) => void,
     ) {
@@ -46,7 +47,7 @@ class IndexedDB implements DB {
         }
 
         try {
-            const openRequest = this.indexedDB.open("vcmi-files", 1);
+            const openRequest = this.indexedDB.open(name, 1);
             openRequest.onerror = (event) => {
                 onerror("Can't open cache database: " + openRequest.error?.message);
             };
@@ -96,8 +97,8 @@ class IndexedDB implements DB {
         });
     }
 
-    public get(key: string): Promise<Uint8Array> {
-        return new Promise<Uint8Array>((resolve, reject) => {
+    public get(key: string): Promise<Uint8Array | null> {
+        return new Promise<Uint8Array | null>((resolve, reject) => {
             if (this.db === null) {
                 reject(new Error("db is not initalized"));
                 return;
@@ -110,7 +111,7 @@ class IndexedDB implements DB {
                 if (request.result) {
                     resolve(new Uint8Array(request.result));
                 } else {
-                    reject(new Error("Result is empty for key '" + key + "', result: " + request.result));
+                    resolve(null);
                 }
             };
         });
@@ -156,13 +157,24 @@ class IndexedDB implements DB {
     }
 }
 
-const promise: Promise<DB> = (() => {
+const dataDBPromise: Promise<DB> = (() => {
     return new Promise((resolve) => {
-        new IndexedDB(resolve, (msg: string) => {
+        new IndexedDB("vcmi-data", resolve, (msg: string) => {
             console.error("Can't open IndexedDB cache", msg);
             resolve(new DBNoop());
         });
     });
 })();
 
-export const getDB = () => promise;
+const filesDBPromise: Promise<DB> = (() => {
+    return new Promise((resolve) => {
+        new IndexedDB("vcmi-files", resolve, (msg: string) => {
+            console.error("Can't open IndexedDB cache", msg);
+            resolve(new DBNoop());
+        });
+    });
+})();
+
+export const getDataDB = () => dataDBPromise;
+export const getFilesDB = () => filesDBPromise;
+

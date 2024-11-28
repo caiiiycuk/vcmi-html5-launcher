@@ -4,10 +4,10 @@ import { useT } from "../i18n";
 import { useEffect, useState } from "preact/hooks";
 
 const resolutions = [
-    [0, 0], [800, 600], [1024, 768], [1280, 720], [1280, 1024], [1440, 900]
+    [0, 0], [800, 600], [1024, 768], [1280, 720], [1280, 1024], [1440, 900],
 ];
-const widhtRegex = new RegExp("\"width\":\\s*(\\d+)");
-const heightRegex = new RegExp("\"height\":\\s*(\\d+)");
+const widhtRegex = new RegExp("\"width\"\\s*:\\s*(\\d+)");
+const heightRegex = new RegExp("\"height\"\\s*:\\s*(\\d+)");
 
 export function VCMIConfig() {
     const dispatch = useDispatch();

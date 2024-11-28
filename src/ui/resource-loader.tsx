@@ -1,10 +1,11 @@
 import { useEffect, useState } from "preact/hooks";
 import { loadResource } from "../util/resource";
-import { State, uiSlice, VCMI_DATA, VCMI_MODULE } from "../util/store";
+import { State, uiSlice } from "../util/store";
 import { useDispatch, useSelector } from "react-redux";
 import { wasmInstantiate } from "../util/wasm";
 import { useT } from "../i18n";
-import { getDB } from "../util/db";
+import { getDataDB } from "../util/db";
+import { VCMI_DATA, VCMI_MODULE } from "../util/module";
 
 export function Loader(props: {
     resourceType: "datafile" | "wasm",
@@ -28,11 +29,11 @@ export function Loader(props: {
                 const [js, data] = await Promise.all([jsPromise, dataPromise]);
 
                 const Module = VCMI_MODULE;
-                Module.getPreloadedPackage = (name: any, size: any) => data;
+                Module.getPreloadedPackage = (name: any, size: any) => data as ArrayBuffer;
                 eval(js as string);
 
                 // load homm3 data
-                const db = await getDB();
+                const db = await getDataDB();
                 const homm3Files: FileList | undefined = VCMI_MODULE.homm3Files;
                 if (homm3Files) {
                     delete VCMI_MODULE.homm3Files;

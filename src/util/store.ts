@@ -1,16 +1,7 @@
 import { configureStore, createSlice } from "@reduxjs/toolkit";
+import { resetModule } from "./module";
+import { getFilesDB } from "./db";
 
-export const VCMI_DATA: {[file: string]: Uint8Array | null} = {
-    "H3ab_ahd.snd": null,
-    "H3ab_bmp.lod": null,
-    "H3ab_spr.lod": null,
-    "H3bitmap.lod": null,
-    "H3sprite.lod": null,
-    "Heroes3.snd": null,
-};
-
-export let VCMI_MODULE: { homm3Files?: FileList } & any = {
-};
 
 const initialUiState: {
     lang: "ru" | "en",
@@ -26,7 +17,7 @@ const initialUiState: {
     wasmUrl: "vcmi/vcmiclient.js",
     step: "DATA_SELECT",
     config: localStorage.getItem("vcmi.config") ??
-`{
+        `{
     "general" : {
         "language" : "${navigator.language.startsWith("ru") ? "russian" : "english"}",
     },
@@ -48,7 +39,7 @@ export const uiSlice = createSlice({
             state.step = a.payload;
 
             if (state.step === "DATA_SELECT") {
-                VCMI_MODULE = {};
+                resetModule();
             }
         },
         setDataUrl: (state, a: { payload: string }) => {
@@ -62,15 +53,24 @@ export const uiSlice = createSlice({
     },
 });
 
-export const store = configureStore({
-    reducer: {
-        ui: uiSlice.reducer,
-    },
-});
+export const store = (() => {
+    const store = configureStore({
+        reducer: {
+            ui: uiSlice.reducer,
+        },
+    });
+
+    (async () => {
+        const db = await getFilesDB();
+        const config = await db.get("/home/web_user/.config/vcmi/settings.json");
+        if (config && config.length > 0) {
+            store.dispatch(uiSlice.actions.setConfig(new TextDecoder().decode(config)));
+        }
+    })().catch(console.error);
+
+    return store;
+})();
 
 export interface State {
     ui: typeof initialUiState,
 }
-
-// for debug
-(window as any).VCMI_MODULE = VCMI_MODULE;
