@@ -83,7 +83,7 @@ export function DataSelect() {
                             setDataType("file");
                             VCMI_MODULE.homm3Files = e.currentTarget.files;
                         }
-                    }}/>
+                    }} />
             </div>
             <div class="field-row">
                 <input disabled={!dbReady} checked={dataType === "url"}
@@ -106,21 +106,26 @@ export function DataSelect() {
             </div>
         </fieldset>
         {dbReady &&
-            <button class="self-end"
-                onClick={() => {
-                    if (dataType !== "db") {
-                        for (const next of Object.keys(VCMI_DATA)) {
-                            VCMI_DATA[next] = null;
+            <div class="flex flex-row justify-between">
+                <button class="min-w-4" onClick={() => window.open("https://t.me/dzhomm3", "_blank")}>
+                    <p class="tg-link size-5 p-0 m-0"></p>
+                </button>
+                <button class="self-end"
+                    onClick={() => {
+                        if (dataType !== "db") {
+                            for (const next of Object.keys(VCMI_DATA)) {
+                                VCMI_DATA[next] = null;
+                            }
                         }
-                    }
-                    if (dataType !== "file") {
-                        delete VCMI_MODULE.homm3Files;
-                    }
-                    dispatch(uiSlice.actions.step("LOADING_DATA"));
-                }}
-            >
-                {t("next")}
-            </button>}
+                        if (dataType !== "file") {
+                            delete VCMI_MODULE.homm3Files;
+                        }
+                        dispatch(uiSlice.actions.step("LOADING_DATA"));
+                    }}
+                >
+                    {t("next")}
+                </button>
+            </div>}
         {!dbReady &&
             <p class="self-end font-bold my-1 text-gray-400">{t("loading_db")}</p>}
     </div>;

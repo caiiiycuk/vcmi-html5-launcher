@@ -19,6 +19,9 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         open_browser_logs: "Откройте лог браузера для подробной информации...",
         start_the_game: "Запустить",
         loading_db: "Загрузка локальных данных...",
+        config: "Конфигурация",
+        resolution: "Разрешение",
+        fit_screen: "Окно браузера",
     },
     en: {
         title: "Heroes Of Might And Magic III",
@@ -35,6 +38,9 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         open_browser_logs: "Open browser log for more info...",
         start_the_game: "Start the game",
         loading_db: "Loading local files...",
+        config: "Config",
+        resolution: "Resolution",
+        fit_screen: "Browser window",
     },
 };
 

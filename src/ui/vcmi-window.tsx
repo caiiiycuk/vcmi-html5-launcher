@@ -1,8 +1,10 @@
 import { useEffect, useRef } from "preact/hooks";
-import { VCMI_DATA, VCMI_MODULE } from "../util/store";
+import { State, VCMI_DATA, VCMI_MODULE } from "../util/store";
+import { useSelector } from "react-redux";
 
 export function VCMIWindow() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
+    const config = useSelector((state: State) => state.ui.config);
     useEffect(() => {
         const canvas = canvasRef.current;
         if (canvas !== null) {
@@ -32,19 +34,7 @@ export function VCMIWindow() {
             }
 
             VCMI_MODULE.FS.createDataFile("/config/settings.json", null,
-                new TextEncoder().encode(`{
-                    "general" : {
-                        "language" : "english",
-                    },
-                    "video" : {
-                        "resolution" : {
-                            "scaling": 100,
-                            "height": ${innerHeight},
-                            "width": ${innerWidth}
-                        }
-                    }
-                }`),
-                true, true, true);
+                new TextEncoder().encode(config), true, true, true);
 
             VCMI_MODULE.run();
             VCMI_MODULE.callMain();

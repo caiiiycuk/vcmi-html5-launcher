@@ -18,12 +18,26 @@ const initialUiState: {
     vcmiDataUrl: string,
     wasmUrl: string,
     step: "DATA_SELECT" | "LOADING_DATA" | "LOADING_WASM" | "READY_TO_RUN" | "STARTED",
+    config: string,
 } = {
     lang: navigator.language.startsWith("ru") ? "ru" : "en",
     homm3DataUrl: localStorage.getItem("vcmi.dataUrl") ?? "vcmi/",
     vcmiDataUrl: "vcmi/vcmi.data.js",
     wasmUrl: "vcmi/vcmiclient.js",
     step: "DATA_SELECT",
+    config: localStorage.getItem("vcmi.config") ??
+`{
+    "general" : {
+        "language" : "${navigator.language.startsWith("ru") ? "russian" : "english"}",
+    },
+    "video" : {
+        "resolution" : {
+            "width": ${innerWidth}
+            "height": ${innerHeight},
+            "scaling": 100,
+        }
+    }
+}`,
 };
 
 export const uiSlice = createSlice({
@@ -40,6 +54,10 @@ export const uiSlice = createSlice({
         setDataUrl: (state, a: { payload: string }) => {
             state.homm3DataUrl = a.payload;
             localStorage.setItem("vcmi.dataUrl", a.payload);
+        },
+        setConfig: (state, a: { payload: string }) => {
+            state.config = a.payload;
+            localStorage.setItem("vcmi.config", a.payload);
         },
     },
 });

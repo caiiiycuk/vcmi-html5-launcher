@@ -15,3 +15,18 @@ body,
     background-position: center;
     background-size: cover;
 }
+
+textarea {
+    border: 1px solid #7f9db9 !important;
+}
+
+.tg-link {
+    background-image: url("tg_logo.svg");
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+button {
+    @apply cursor-pointer;
+}
