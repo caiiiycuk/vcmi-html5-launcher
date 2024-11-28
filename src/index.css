@@ -27,6 +27,13 @@ textarea {
     background-repeat: no-repeat;
 }
 
+.discord-link {
+    background-image: url("discord_logo.svg");
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
 button {
     @apply cursor-pointer;
 }

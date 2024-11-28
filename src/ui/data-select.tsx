@@ -106,10 +106,14 @@ export function DataSelect() {
             </div>
         </fieldset>
         {dbReady &&
-            <div class="flex flex-row justify-between">
+            <div class="flex flex-row gap-1">
                 <button class="min-w-4" onClick={() => window.open("https://t.me/dzhomm3", "_blank")}>
                     <p class="tg-link size-5 p-0 m-0"></p>
                 </button>
+                <button class="min-w-4" onClick={() => window.open("https://discord.gg/pkYfG7CV8E", "_blank")}>
+                    <p class="discord-link size-5 p-0 m-0"></p>
+                </button>
+                <div class="flex-grow"></div>
                 <button class="self-end"
                     onClick={() => {
                         if (dataType !== "db") {
