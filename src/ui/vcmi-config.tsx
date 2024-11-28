@@ -4,7 +4,7 @@ import { useT } from "../i18n";
 import { useEffect, useState } from "preact/hooks";
 
 const resolutions = [
-    [0, 0], [800, 600], [1024, 768], [1280, 720], [1280, 1024],
+    [0, 0], [800, 600], [1024, 768], [1280, 720], [1280, 1024], [1440, 900]
 ];
 const widhtRegex = new RegExp("\"width\":\\s*(\\d+)");
 const heightRegex = new RegExp("\"height\":\\s*(\\d+)");
@@ -37,7 +37,7 @@ export function VCMIConfig() {
             <label for="resolution">{t("resolution")}</label>
             <select id="resolution" onChange={(e) => {
                 const index = Number.parseInt(e.currentTarget.value);
-                if (index > 0 && index < resolutions.length) {
+                if (index >= 0 && index < resolutions.length) {
                     setIndex(index);
                     dispatch(uiSlice.actions.setConfig(updateConfigResolution(config, index)));
                 }
