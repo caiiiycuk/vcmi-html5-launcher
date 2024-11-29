@@ -22,6 +22,7 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         config: "Конфигурация",
         resolution: "Разрешение",
         fit_screen: "Окно браузера",
+        reset: "Сбросить",
     },
     en: {
         title: "Heroes Of Might And Magic III",
@@ -41,6 +42,7 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         config: "Config",
         resolution: "Resolution",
         fit_screen: "Browser window",
+        reset: "Reset",
     },
 };
 

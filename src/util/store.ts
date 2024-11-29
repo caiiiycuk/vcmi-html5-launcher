@@ -2,6 +2,8 @@ import { configureStore, createSlice } from "@reduxjs/toolkit";
 import { resetModule } from "./module";
 import { getFilesDB } from "./db";
 
+const maxSize = 1920;
+
 
 const initialUiState: {
     lang: "ru" | "en",
@@ -16,19 +18,7 @@ const initialUiState: {
     vcmiDataUrl: "vcmi/vcmi.data.js",
     wasmUrl: "vcmi/vcmiclient.js",
     step: "DATA_SELECT",
-    config: localStorage.getItem("vcmi.config") ??
-        `{
-    "general" : {
-        "language" : "${navigator.language.startsWith("ru") ? "russian" : "english"}",
-    },
-    "video" : {
-        "resolution" : {
-            "width": ${innerWidth}
-            "height": ${innerHeight},
-            "scaling": 100,
-        }
-    }
-}`,
+    config: localStorage.getItem("vcmi.config") ?? defaultConfig(),
 };
 
 export const uiSlice = createSlice({
@@ -73,4 +63,42 @@ export const store = (() => {
 
 export interface State {
     ui: typeof initialUiState,
+}
+
+export function defaultConfig() {
+    const [widht, height] = getScreenResolution();
+    return `{
+    "general" : {
+        "language" : "${navigator.language.startsWith("ru") ? "russian" : "english"}",
+    },
+    "video" : {
+        "resolution" : {
+            "width" : ${widht}
+            "height" : ${height},
+            "scaling" : 100,
+        }
+    },
+    "server" : {
+        "remoteHostname" : "netherlands.dos.zone",
+    },
+    "lobby" :  {
+        "hostname" : "netherlands.dos.zone",
+        "mapPreview" : false,
+    },
+}`;
+}
+
+export function getScreenResolution() {
+    const dpi = Math.max(1, Math.min(devicePixelRatio, 2));
+    let width = innerWidth * dpi;
+    let height = innerHeight * dpi;
+    if (width > maxSize) {
+        height = height * maxSize / width;
+        width = maxSize;
+    }
+    if (height > maxSize) {
+        width = width * maxSize / height;
+        height = maxSize;
+    }
+    return [width, height];
 }

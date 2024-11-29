@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { State, uiSlice } from "../util/store";
+import { defaultConfig, getScreenResolution, State, uiSlice } from "../util/store";
 import { useT } from "../i18n";
 import { useEffect, useState } from "preact/hooks";
 
@@ -43,7 +43,8 @@ export function VCMIConfig() {
                 }
             }}>
                 {resolutions.map(([w, h], i) => {
-                    const text = i === 0 ? t("fit_screen") + " — " + innerWidth + "x" + innerHeight :
+                    const [screenWidth, screenHeight] = getScreenResolution();
+                    const text = i === 0 ? t("fit_screen") + " — " + screenWidth + "x" + screenHeight :
                         w + "x" + h;
                     return <option value={i} selected={index === i} >{text}</option>;
                 })}
@@ -55,9 +56,16 @@ export function VCMIConfig() {
                 onChange={(e) => dispatch(uiSlice.actions.setConfig(e.currentTarget.value))}></textarea>
         </div>
 
-        <button class="self-end" onClick={() => {
-            dispatch(uiSlice.actions.step("STARTED"));
-        }}>{t("start_the_game")}</button>
+        <div class="flex flex-row justify-between">
+            <button onClick={() => {
+                setIndex(0);
+                dispatch(uiSlice.actions.setConfig(defaultConfig()));
+            }}>{t("reset")}</button>
+
+            <button onClick={() => {
+                dispatch(uiSlice.actions.step("STARTED"));
+            }}>{t("start_the_game")}</button>
+        </div>
     </div>;
 }
 

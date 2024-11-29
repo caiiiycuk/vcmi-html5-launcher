@@ -28,6 +28,7 @@ export const VCMI_MODULE: {
     fsRead: (path: string) => Uint8Array,
     fsWrite: (path: string, contents: Uint8Array) => void,
     fsUpdate: (filePtr: number, bufferPtr: number, length: number) => void;
+    gameStarted?: () => void;
 } = resetModule();
 
 export function resetModule() {

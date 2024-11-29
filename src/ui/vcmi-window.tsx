@@ -44,15 +44,28 @@ export function VCMIWindow() {
                     }
                 });
 
+                const encoder = new TextEncoder();
                 VCMI_MODULE.fsWrite(
                     "/config/settings.json",
-                    new TextEncoder().encode(config));
+                    encoder.encode(config));
+
+                VCMI_MODULE.fsWrite(
+                    "/config/modSettings.json",
+                    encoder.encode(modSettings));
+
+                VCMI_MODULE.gameStarted = () => {
+                    onResize();
+                };
 
                 VCMI_MODULE.run!();
                 VCMI_MODULE.callMain!();
             })().catch(console.error);
 
+            const preventDefault = (e: Event) => e.preventDefault();
+            canvas.addEventListener("contextmenu", preventDefault);
+
             return () => {
+                canvas.removeEventListener("contextmenu", preventDefault);
                 observer.unobserve(parent);
             };
         }
@@ -75,3 +88,24 @@ function getSizeWithAspectRatio(width: number,
     const calculatedHeight = Math.round(width / targetAspect);
     return { width, height: calculatedHeight };
 }
+
+const modSettings = `
+{
+    "activeMods" : {
+        "extras" : {
+            "active" : true
+        },
+        "vcmi" : {
+            "active" : true,
+            "checksum" : "abf49988",
+            "validated" : true
+        }
+    },
+    "core" : {
+        "active" : true,
+        "checksum" : "55b95539",
+        "name" : "Original game files",
+        "validated" : true
+    }
+}
+`;
