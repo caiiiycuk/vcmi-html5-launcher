@@ -9,7 +9,7 @@ rm -rf dist &&\
     dist s3://vcmi/launcher --delete 
 ```
 
-Clear the CDN cache (v8.js-dos.com) in dashboard, pattern:
+Clear the CDN cache (vcmi.dos.zone) in dashboard, pattern:
 ```
 /launcher,/launcher/*
 ```
