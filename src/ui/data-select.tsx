@@ -72,7 +72,7 @@ export function DataSelect() {
             <legend>{t("data_source")}</legend>
             <div class="field-row">
                 <input disabled={!dbReady} checked={dataType === "file"}
-                    onSelect={() => setDataType("file")}
+                    onChange={() => setDataType("file")}
                     id="data-directory" type="radio" name="data-source" />
                 <label for="data-directory">{t("data_directory")}</label>
             </div>
@@ -87,8 +87,8 @@ export function DataSelect() {
                     }} />
             </div>
             <div class="field-row">
-                <input disabled={!dbReady} checked={dataType === "url"}
-                    onSelect={() => setDataType("url")}
+                <input disabled={!dbReady || dataUrl.length === 0} checked={dataType === "url"}
+                    onChange={() => setDataType("url")}
                     id="data-url" type="radio" name="data-source" />
                 <label for="data-url">URL</label>
             </div>
@@ -98,10 +98,12 @@ export function DataSelect() {
                         setDataType("url");
                         dispatch(uiSlice.actions.setDataUrl(e.currentTarget.value ?? ""));
                     }}
-                    value={dataUrl} />
+                    value={dataUrl}
+                    placeholder={t("enter_url")}
+                />
             </div>
             <div class="field-row">
-                <input disabled={!hoMM3InDB} checked={dataType === "db"} onSelect={() => setDataType("db")}
+                <input disabled={!hoMM3InDB} checked={dataType === "db"} onChange={() => setDataType("db")}
                     id="data-db" type="radio" name="data-source" />
                 <label for="data-db">{t("data_db")}</label>
             </div>
@@ -127,6 +129,7 @@ export function DataSelect() {
                         }
                         dispatch(uiSlice.actions.step("LOADING_DATA"));
                     }}
+                    disabled={dataUrl.length === 0 && dataType === "url"}
                 >
                     {t("next")}
                 </button>

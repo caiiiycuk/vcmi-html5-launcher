@@ -11,7 +11,10 @@ export function Loader(props: {
     resourceType: "datafile" | "wasm",
 }) {
     const dataUrl = useSelector((state: State) => state.ui.vcmiDataUrl);
-    const homm3DataUrl = useSelector((state: State) => state.ui.homm3DataUrl);
+    let homm3DataUrl = useSelector((state: State) => state.ui.homm3DataUrl);
+    if (homm3DataUrl.length > 0 && homm3DataUrl[homm3DataUrl.length - 1] !== "/") {
+        homm3DataUrl += "/";
+    }
     const wasmUrl = useSelector((state: State) => state.ui.wasmUrl);
     const [file, setFile] = useState<string>("");
     const [progress, setProgress] = useState<number>(0);
@@ -24,16 +27,20 @@ export function Loader(props: {
             if (props.resourceType === "datafile") {
                 // load vcmi data
                 setFile("VCMI/Data");
-                const jsPromise = loadResource(dataUrl, "text", () => { });
-                const dataPromise = loadResource(dataUrl.substring(0, dataUrl.length - 3), "arraybuffer", setProgress);
-                const [js, data] = await Promise.all([jsPromise, dataPromise]);
+                const db = await getDataDB();
+                let data = await db.get(dataUrl);
+                const js = await loadResource(dataUrl, "text", () => { });
+                if (data === null) {
+                    data = new Uint8Array(await loadResource(dataUrl.substring(0, dataUrl.length - 3),
+                        "arraybuffer", setProgress) as ArrayBuffer);
+                    db.put(dataUrl, data).catch(console.error);
+                }
 
                 const Module = VCMI_MODULE;
-                Module.getPreloadedPackage = (name: any, size: any) => data as ArrayBuffer;
+                Module.getPreloadedPackage = (name: any, size: any) => data.buffer;
                 eval(js as string);
 
                 // load homm3 data
-                const db = await getDataDB();
                 const homm3Files: FileList | undefined = VCMI_MODULE.homm3Files;
                 if (homm3Files) {
                     delete VCMI_MODULE.homm3Files;
@@ -56,11 +63,13 @@ export function Loader(props: {
                         }
                     }
                 } else {
+                    let index = 0;
                     for (const next of Object.keys(VCMI_DATA)) {
+                        index += 1;
+                        setFile("HOMM3/" + next + " (" + index + "/" + Object.keys(VCMI_DATA).length + ")");
                         if (VCMI_DATA[next] === null) {
-                            setFile("HOMM3/" + next);
                             VCMI_DATA[next] = new Uint8Array(await loadResource(
-                                homm3DataUrl + "/Data/" + next, "arraybuffer", setProgress) as any);
+                                homm3DataUrl + "Data/" + next, "arraybuffer", setProgress) as any);
                             db.put(next, VCMI_DATA[next]).catch(console.error);
                         }
                     }

@@ -2,8 +2,8 @@ import { configureStore, createSlice } from "@reduxjs/toolkit";
 import { resetModule } from "./module";
 import { getFilesDB } from "./db";
 
-const maxSize = 1920;
-
+const maxSize = 1440;
+// const minWidht =
 
 const initialUiState: {
     lang: "ru" | "en",
@@ -14,7 +14,7 @@ const initialUiState: {
     config: string,
 } = {
     lang: navigator.language.startsWith("ru") ? "ru" : "en",
-    homm3DataUrl: localStorage.getItem("vcmi.dataUrl") ?? "vcmi/",
+    homm3DataUrl: localStorage.getItem("vcmi.dataUrl") ?? "",
     vcmiDataUrl: "vcmi/vcmi.data.js",
     wasmUrl: "vcmi/vcmiclient.js",
     step: "DATA_SELECT",

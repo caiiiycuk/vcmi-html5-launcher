@@ -21,7 +21,7 @@ export const VCMI_MODULE: {
     run?: () => void,
     callMain?: () => void,
     instantiateWasm?: any,
-    getPreloadedPackage?: (name: string, size: number) => ArrayBuffer,
+    getPreloadedPackage?: (name: string, size: number) => ArrayBufferLike,
     HEAPU8?: Uint8Array,
     _free?: (ptr: number) => void,
     UTF8ToString?: (stringPtr: number) => string;
