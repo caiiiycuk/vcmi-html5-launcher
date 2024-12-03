@@ -29,6 +29,7 @@ export const VCMI_MODULE: {
     fsWrite: (path: string, contents: Uint8Array) => void,
     fsUpdate: (filePtr: number, bufferPtr: number, length: number) => void;
     gameStarted?: () => void;
+    websocket?: { url: string };
 } = resetModule();
 
 export function resetModule() {
@@ -61,6 +62,9 @@ export function resetModule() {
             module._free!(bufferPtr);
         },
 
+    };
+    module.websocket = {
+        url: "wss://",
     };
     // for debug
     (window as any).VCMI_MODULE = module;
