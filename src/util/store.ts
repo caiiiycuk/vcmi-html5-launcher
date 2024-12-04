@@ -3,7 +3,7 @@ import { resetModule } from "./module";
 import { getFilesDB } from "./db";
 
 const maxSize = 1440;
-// const minWidht =
+const minSize = 600;
 
 const initialUiState: {
     lang: "ru" | "en",
@@ -90,15 +90,24 @@ export function defaultConfig() {
 
 export function getScreenResolution() {
     const dpi = Math.max(1, Math.min(devicePixelRatio, 2));
-    let width = innerWidth * dpi;
-    let height = innerHeight * dpi;
+    let width = Math.round(innerWidth * dpi);
+    let height = Math.round(innerHeight * dpi);
     if (width > maxSize) {
-        height = height * maxSize / width;
+        height = Math.round(height * maxSize / width);
         width = maxSize;
     }
     if (height > maxSize) {
-        width = width * maxSize / height;
+        width = Math.round(width * maxSize / height);
         height = maxSize;
     }
+    if (width < minSize) {
+        height = Math.round(height * minSize / width);
+        width = minSize;
+    }
+    if (height < minSize) {
+        width = Math.round(width * height / minSize);
+        height = minSize;
+    }
+
     return [width, height];
 }

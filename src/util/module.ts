@@ -28,8 +28,10 @@ export const VCMI_MODULE: {
     fsRead: (path: string) => Uint8Array,
     fsWrite: (path: string, contents: Uint8Array) => void,
     fsUpdate: (filePtr: number, bufferPtr: number, length: number) => void;
+    getVCMIVersion: () => string,
     gameStarted?: () => void;
     websocket?: { url: string };
+    _getVCMIVersion?: () => number,
 } = resetModule();
 
 export function resetModule() {
@@ -61,7 +63,9 @@ export function resetModule() {
             db.put(file, module.HEAPU8!.slice(bufferPtr, bufferPtr + length)).catch(console.error);
             module._free!(bufferPtr);
         },
-
+        getVCMIVersion() {
+            return module.UTF8ToString!(module._getVCMIVersion!());
+        },
     };
     module.websocket = {
         url: "wss://",

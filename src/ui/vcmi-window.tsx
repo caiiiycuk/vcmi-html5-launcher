@@ -1,25 +1,34 @@
-import { useEffect, useRef } from "preact/hooks";
+import { useEffect, useRef, useState } from "preact/hooks";
 import { State } from "../util/store";
 import { useSelector } from "react-redux";
 import { VCMI_DATA, VCMI_MODULE } from "../util/module";
 import { getFilesDB } from "../util/db";
+import { parseResolution } from "./vcmi-config";
 
 export function VCMIWindow() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const config = useSelector((state: State) => state.ui.config);
+    const [version, setVersion] = useState<string>("");
+
+    let [width, height] = parseResolution(config);
+    if (width === null || height === null) {
+        width = 800;
+        height = 600;
+    }
+
     useEffect(() => {
         const canvas = canvasRef.current;
         if (canvas !== null) {
             const parent = canvas.parentElement!;
             const onResize = () => {
                 const bounds = parent.getBoundingClientRect();
-                const { width, height } = getSizeWithAspectRatio(
-                    bounds.width, bounds.height, canvas.width / canvas.height);
+                const { width: cssWidth, height: cssHeight } = getSizeWithAspectRatio(
+                    bounds.width, bounds.height, width / height);
                 canvas.style.position = "absolute";
-                canvas.style.top = (bounds.height / 2 - height / 2) + "px";
-                canvas.style.left = (bounds.width / 2 - width / 2) + "px";
-                canvas.style.width = width + "px";
-                canvas.style.height = height + "px";
+                canvas.style.top = (bounds.height / 2 - cssHeight / 2) + "px";
+                canvas.style.left = (bounds.width / 2 - cssWidth / 2) + "px";
+                canvas.style.width = cssWidth + "px";
+                canvas.style.height = cssHeight + "px";
             };
             onResize();
             const observer = new ResizeObserver(onResize);
@@ -36,7 +45,7 @@ export function VCMIWindow() {
 
                 const files = await getFilesDB();
                 await files.forEach((file, value) => {
-                    if (file.indexOf("settings.json") >= 0) {
+                    if (file.indexOf("settings.json") >= 0 || file.indexOf("modSettings.json")) {
                         return;
                     }
                     if (value.length > 0) {
@@ -58,6 +67,7 @@ export function VCMIWindow() {
                 };
 
                 VCMI_MODULE.run!();
+                setVersion(VCMI_MODULE.getVCMIVersion());
                 VCMI_MODULE.callMain!();
             })().catch(console.error);
 
@@ -70,8 +80,10 @@ export function VCMIWindow() {
             };
         }
     }, [canvasRef]);
+
     return <div class="w-full h-full relative">
-        <canvas id="canvas" ref={canvasRef} />
+        <canvas id="canvas" ref={canvasRef} width={width} height={height}/>
+        <span class="absolute right-2 bottom-4 text-slate-200 pointer-events-none">{version}</span>
     </div>;
 }
 

@@ -3,12 +3,14 @@
 import { useSelector } from "react-redux";
 import { State } from "./util/store";
 
+const version = "1.0 (Beta)";
+
 const translations: {[lang: string]: {[key: string]: string} } = {
     ru: {
-        title: "Герои Меча и Магии III",
+        title: "Герои Меча и Магии III" + " " + version,
         confirm_legal_copy: "У меня есть легальная копия игры",
         legal: "Права",
-        legal_text: "Игра онснована на движке с открытым исходныи кодом VCMI[1]. Что бы начать играть необходимо указать URL с данными оригинальной игры HoMM3[2], либо вы можете загрузить их. Вы не можете продолжить если Вы не приобретали оригинальную игру.",
+        legal_text: "Игра основана на движке с открытым исходныи кодом VCMI[1]. Что бы начать играть необходимо указать URL с данными оригинальной игры HoMM3[2], либо вы можете загрузить их. Вы не можете продолжить если Вы не приобретали оригинальную игру.",
         data_source: "Источник данных",
         data_directory: "Установленная игра (выбрать каталог)",
         data_db: "Ранее загруженные",
@@ -26,7 +28,7 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         enter_url: "Введите адрес...",
     },
     en: {
-        title: "Heroes Of Might And Magic III",
+        title: "Heroes Of Might And Magic III" + " " + version,
         confirm_legal_copy: "I confirm I have legal copy of this game.",
         legal: "Legal",
         legal_text: "The game based on opensource engine VCMI[1]. To play the game you need to provide URL to original HoMM3[2] game files, or you can upload them. You can't continue if you do not own the game",
