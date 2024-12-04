@@ -45,7 +45,7 @@ export function VCMIWindow() {
 
                 const files = await getFilesDB();
                 await files.forEach((file, value) => {
-                    if (file.indexOf("settings.json") >= 0 || file.indexOf("modSettings.json")) {
+                    if (file.indexOf("settings.json") >= 0 || file.indexOf("modSettings.json") >= 0) {
                         return;
                     }
                     if (value.length > 0) {
@@ -81,9 +81,9 @@ export function VCMIWindow() {
         }
     }, [canvasRef]);
 
-    return <div class="w-full h-full relative">
-        <canvas id="canvas" ref={canvasRef} width={width} height={height}/>
-        <span class="absolute right-2 bottom-4 text-slate-200 pointer-events-none">{version}</span>
+    return <div class="w-full h-full relative flex items-center justify-center">
+        <canvas id="canvas" class="absolute" ref={canvasRef} width={width} height={height}/>
+        <span class="absolute top-4 text-slate-200 text-xs pointer-events-none">{version}</span>
     </div>;
 }
 
