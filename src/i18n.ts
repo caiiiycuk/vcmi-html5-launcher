@@ -1,9 +1,8 @@
 /* eslint-disable max-len */
 
 import { useSelector } from "react-redux";
-import { State } from "./util/store";
+import { State, version } from "./util/store";
 
-const version = "1.0 (Beta)";
 
 const translations: {[lang: string]: {[key: string]: string} } = {
     ru: {

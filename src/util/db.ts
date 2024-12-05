@@ -92,7 +92,10 @@ class IndexedDB implements DB {
 
             const transaction = this.db.transaction(this.storeName, "readwrite");
             const request = transaction.objectStore(this.storeName).put(data.buffer, key);
-            request.onerror = () => reject;
+            request.onerror = (e) => {
+                reject(new Error("Can't put key '" + key + "'"));
+                console.error(e);
+            };
             request.onsuccess = () => resolve();
         });
     }
@@ -126,7 +129,7 @@ class IndexedDB implements DB {
 
             const transaction = this.db.transaction(this.storeName, "readonly");
             const request = transaction.objectStore(this.storeName).index("key").getAllKeys();
-            request.onerror = () => reject;
+            request.onerror = reject;
             request.onsuccess = (event) => {
                 const keys = (event.target as any).result as string[];
                 resolve(keys);
@@ -143,7 +146,7 @@ class IndexedDB implements DB {
 
             const transaction = this.db.transaction(this.storeName, "readonly");
             const request = transaction.objectStore(this.storeName).openCursor();
-            request.onerror = () => reject;
+            request.onerror = reject;
             request.onsuccess = (event) => {
                 const cursor = (event.target as any).result as IDBCursorWithValue;
                 if (cursor) {

@@ -2,6 +2,8 @@ import { configureStore, createSlice } from "@reduxjs/toolkit";
 import { resetModule } from "./module";
 import { getFilesDB } from "./db";
 
+export const version = "1.5.7-wasm-rc";
+export const vcmiDataUrl = "vcmi/vcmi.data.js";
 const maxSize = 1440;
 const minSize = 600;
 
@@ -12,13 +14,15 @@ const initialUiState: {
     wasmUrl: string,
     step: "DATA_SELECT" | "LOADING_DATA" | "LOADING_WASM" | "READY_TO_RUN" | "STARTED",
     config: string,
+    version: string,
 } = {
     lang: navigator.language.startsWith("ru") ? "ru" : "en",
     homm3DataUrl: localStorage.getItem("vcmi.dataUrl") ?? "",
-    vcmiDataUrl: "vcmi/vcmi.data.js",
+    vcmiDataUrl,
     wasmUrl: "vcmi/vcmiclient.js",
     step: "DATA_SELECT",
     config: localStorage.getItem("vcmi.config") ?? defaultConfig(),
+    version,
 };
 
 export const uiSlice = createSlice({

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import { loadResource } from "../util/resource";
-import { State, uiSlice } from "../util/store";
+import { State, uiSlice, version } from "../util/store";
 import { useDispatch, useSelector } from "react-redux";
 import { wasmInstantiate } from "../util/wasm";
 import { useT } from "../i18n";
@@ -28,17 +28,25 @@ export function Loader(props: {
                 // load vcmi data
                 setFile("VCMI/Data");
                 const db = await getDataDB();
-                let data = await db.get(dataUrl);
-                const js = await loadResource(dataUrl, "text", () => { });
-                if (data === null) {
-                    data = new Uint8Array(await loadResource(dataUrl.substring(0, dataUrl.length - 3),
+                const dataContentsUrl = dataUrl.substring(0, dataUrl.length - 3);
+                const dataKey = version + ".data";
+                const dataContentsKey = version + ".contents";
+                let [data, dataContents] = await Promise.all([db.get(dataKey),
+                    db.get(dataContentsKey)]);
+                let dataJs = null;
+                if (data !== null) {
+                    dataJs = new TextDecoder().decode(data);
+                }
+                if (dataJs === null || dataContents === null) {
+                    dataJs = await loadResource(dataUrl, "text", () => { }) as string;
+                    dataContents = new Uint8Array(await loadResource(dataContentsUrl,
                         "arraybuffer", setProgress) as ArrayBuffer);
-                    db.put(dataUrl, data).catch(console.error);
+                    db.put(dataKey, new TextEncoder().encode(dataJs)).catch(console.error);
+                    db.put(dataContentsKey, dataContents).catch(console.error);
                 }
 
-                const Module = VCMI_MODULE;
-                Module.getPreloadedPackage = (name: any, size: any) => data.buffer;
-                eval(js as string);
+                VCMI_MODULE.dataJs = dataJs;
+                VCMI_MODULE.getPreloadedPackage = (name: any, size: any) => dataContents.buffer;
 
                 // load homm3 data
                 const homm3Files: FileList | undefined = VCMI_MODULE.homm3Files;
@@ -95,7 +103,9 @@ export function Loader(props: {
 
                     /* eslint-disable-next-line new-cap */
                     (window as any).VCMI(Module)
-                        .then(() => {
+                        .then((Module: any) => {
+                            eval(Module.dataJs);
+                            delete Module.dataJs;
                             dispatch(uiSlice.actions.step("READY_TO_RUN"));
                         })
                         .catch((e: any) => {

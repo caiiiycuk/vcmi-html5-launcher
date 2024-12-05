@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "preact/hooks";
+import { useEffect, useRef } from "preact/hooks";
 import { State } from "../util/store";
 import { useSelector } from "react-redux";
 import { VCMI_DATA, VCMI_MODULE } from "../util/module";
@@ -67,10 +67,9 @@ export function VCMIWindow() {
 
                 VCMI_MODULE.run!();
                 console.log("Ready to start, VCMI version:", VCMI_MODULE.getVCMIVersion());
-                VCMI_MODULE.callMain!();
-                // (VCMI_MODULE.callMain as any)(["--onlyAI", "-s", "--spectate-skip-battle"]);
-                // (VCMI_MODULE.callMain as any)(["--onlyAI", "-s"]);
-
+                VCMI_MODULE.callMain!(["--disable-video"]);
+                // VCMI_MODULE.callMain!(["--onlyAI", "-s", "--spectate-skip-battle"]);
+                // VCMI_MODULE.callMain!(["--onlyAI", "-s"]);
             })().catch(console.error);
 
             const preventDefault = (e: Event) => e.preventDefault();
