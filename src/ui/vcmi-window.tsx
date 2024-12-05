@@ -8,7 +8,6 @@ import { parseResolution } from "./vcmi-config";
 export function VCMIWindow() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const config = useSelector((state: State) => state.ui.config);
-    const [version, setVersion] = useState<string>("");
 
     let [width, height] = parseResolution(config);
     if (width === null || height === null) {
@@ -67,8 +66,11 @@ export function VCMIWindow() {
                 };
 
                 VCMI_MODULE.run!();
-                setVersion(VCMI_MODULE.getVCMIVersion());
+                console.log("Ready to start, VCMI version:", VCMI_MODULE.getVCMIVersion());
                 VCMI_MODULE.callMain!();
+                // (VCMI_MODULE.callMain as any)(["--onlyAI", "-s", "--spectate-skip-battle"]);
+                // (VCMI_MODULE.callMain as any)(["--onlyAI", "-s"]);
+
             })().catch(console.error);
 
             const preventDefault = (e: Event) => e.preventDefault();
@@ -83,7 +85,6 @@ export function VCMIWindow() {
 
     return <div class="w-full h-full relative flex items-center justify-center">
         <canvas id="canvas" class="absolute" ref={canvasRef} width={width} height={height}/>
-        <span class="absolute top-4 text-slate-200 text-xs pointer-events-none">{version}</span>
     </div>;
 }
 

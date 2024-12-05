@@ -70,21 +70,21 @@ export function defaultConfig() {
     return `{
     "general" : {
         "language" : "${navigator.language.startsWith("ru") ? "russian" : "english"}",
+        "autosaveCountLimit" : 1
     },
     "video" : {
         "resolution" : {
-            "width" : ${widht}
+            "width" : ${widht},
             "height" : ${height},
-            "scaling" : 100,
+            "scaling" : 100
         }
     },
     "server" : {
-        "remoteHostname" : "netherlands.dos.zone",
+        "remoteHostname" : "netherlands.dos.zone"
     },
     "lobby" :  {
-        "hostname" : "netherlands.dos.zone",
-        "mapPreview" : false,
-    },
+        "hostname" : "netherlands.dos.zone"
+    }
 }`;
 }
 
