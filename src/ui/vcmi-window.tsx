@@ -42,12 +42,16 @@ export function VCMIWindow() {
                     }
                 }
 
+                let makeModSettings = true;
                 const files = await getFilesDB();
                 await files.forEach((file, value) => {
-                    if (file.indexOf("settings.json") >= 0 || file.indexOf("modSettings.json") >= 0) {
+                    if (file.indexOf("settings.json") >= 0) {
                         return;
                     }
                     if (value.length > 0) {
+                        if (file.indexOf("modSettings.json") >= 0) {
+                            makeModSettings = false;
+                        }
                         VCMI_MODULE.fsWrite(file, value);
                     }
                 });
@@ -57,19 +61,21 @@ export function VCMIWindow() {
                     "/config/settings.json",
                     encoder.encode(config));
 
-                VCMI_MODULE.fsWrite(
-                    "/config/modSettings.json",
-                    encoder.encode(modSettings));
+                if (makeModSettings) {
+                    VCMI_MODULE.fsWrite(
+                        "/config/modSettings.json",
+                        encoder.encode(modSettings));
+                }
 
                 VCMI_MODULE.gameStarted = () => {
                     onResize();
                 };
 
                 VCMI_MODULE.run!();
-                console.log("Ready to start, VCMI version:", VCMI_MODULE.getVCMIVersion());
                 VCMI_MODULE.callMain!(["--disable-video"]);
                 // VCMI_MODULE.callMain!(["--onlyAI", "-s", "--spectate-skip-battle"]);
                 // VCMI_MODULE.callMain!(["--onlyAI", "-s"]);
+                console.log("Started, VCMI version:", VCMI_MODULE.getVCMIVersion());
             })().catch(console.error);
 
             const preventDefault = (e: Event) => e.preventDefault();

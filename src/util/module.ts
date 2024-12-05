@@ -83,7 +83,11 @@ export function resetModule() {
             module._playMusic!();
         },
         getVCMIVersion() {
-            return module.UTF8ToString!(module._getVCMIVersion!());
+            if (module._getVCMIVersion) {
+                return module.UTF8ToString!(module._getVCMIVersion());
+            }
+
+            return "Function _getVCMIVersion not found.";
         },
     };
     module.websocket = {
