@@ -83,7 +83,7 @@ export function VCMIWindow() {
         }
     }, [canvasRef]);
 
-    return <div class="w-full h-full relative flex items-center justify-center">
+    return <div class="w-full h-full relative">
         <canvas id="canvas" class="absolute" ref={canvasRef} width={width} height={height}/>
     </div>;
 }
