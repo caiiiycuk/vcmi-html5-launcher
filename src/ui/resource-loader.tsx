@@ -1,6 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import { loadResource } from "../util/resource";
-import { State, uiSlice, version } from "../util/store";
+import { dataVersion, State, uiSlice } from "../util/store";
 import { useDispatch, useSelector } from "react-redux";
 import { wasmInstantiate } from "../util/wasm";
 import { useT } from "../i18n";
@@ -29,8 +29,8 @@ export function Loader(props: {
                 setFile("VCMI/Data");
                 const db = await getDataDB();
                 const dataContentsUrl = dataUrl.substring(0, dataUrl.length - 3);
-                const dataKey = version + ".data";
-                const dataContentsKey = version + ".contents";
+                const dataKey = dataVersion + ".data";
+                const dataContentsKey = dataVersion + ".contents";
                 let [data, dataContents] = await Promise.all([db.get(dataKey),
                     db.get(dataContentsKey)]);
                 let dataJs = null;
