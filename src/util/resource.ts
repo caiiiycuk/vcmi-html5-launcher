@@ -4,6 +4,20 @@ export async function loadResource(
     progress: (progress: number) => void = () => { },
     resourceSize?: number,
 ): Promise<string | ArrayBuffer | Response> {
+    try {
+        return await _loadResource(url, responseType, progress, resourceSize);
+    } catch (e) {
+        console.error("Network error while loading", url, "retrying...");
+        return _loadResource(url, responseType, progress, resourceSize);
+    }
+}
+
+async function _loadResource(
+    url: string,
+    responseType: "text" | "arraybuffer" | "response",
+    progress: (progress: number) => void = () => { },
+    resourceSize?: number,
+): Promise<string | ArrayBuffer | Response> {
     const response = await fetch(url, {
         mode: "cors",
         credentials: "same-origin",

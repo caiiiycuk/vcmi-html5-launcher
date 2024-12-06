@@ -80,7 +80,7 @@ export function VCMIConfig() {
                 <a href={downloadLink} target="_blank">{t("archive_link")}</a>
             }
             {downloadLink === null && <button onClick={async () => {
-                const writer = new ZipWriter(new BlobWriter("application/zip"), { bufferedWrite: true, level: 0, });
+                const writer = new ZipWriter(new BlobWriter("application/zip"), { bufferedWrite: true, level: 0 });
                 const db = await getFilesDB();
                 await db.forEach((key, value) => {
                     if (value.length > 0) {
@@ -102,7 +102,7 @@ export function VCMIConfig() {
                     const file = files[0];
                     if (file.name.endsWith("vsgm1")) {
                         const db = await getFilesDB();
-                        await db.put("/home/web_user/.local/share/vcmi/Saves/" + file.name, 
+                        await db.put("/home/web_user/.local/share/vcmi/Saves/" + file.name,
                             new Uint8Array(await file.arrayBuffer()));
                         alert("Ok");
                     }
