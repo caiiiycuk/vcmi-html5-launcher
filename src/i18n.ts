@@ -23,8 +23,11 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         config: "Конфигурация",
         resolution: "Разрешение",
         fit_screen: "Окно браузера",
-        reset: "Сбросить",
+        reset: "Сбросить конфигурацию",
         enter_url: "Введите адрес...",
+        download_saves: "Скачать сохранения",
+        upload_saves: "Загрузить сохранение",
+        archive_link: "Ссылка на архив",
     },
     en: {
         title: "Heroes Of Might And Magic III" + " " + version,
@@ -44,8 +47,11 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         config: "Config",
         resolution: "Resolution",
         fit_screen: "Browser window",
-        reset: "Reset",
+        reset: "Reset config",
         enter_url: "Enter url...",
+        download_saves: "Download saves",
+        upload_saves: "Upload save",
+        archive_link: "Link to game archive",
     },
 };
 

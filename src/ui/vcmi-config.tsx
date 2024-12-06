@@ -3,6 +3,7 @@ import { defaultConfig, getScreenResolution, State, uiSlice } from "../util/stor
 import { useT } from "../i18n";
 import { useEffect, useState } from "preact/hooks";
 import { getFilesDB } from "../util/db";
+import { BlobWriter, Uint8ArrayReader, ZipWriter } from "@zip.js/zip.js";
 
 const resolutions = [
     [0, 0], [800, 600], [1024, 768], [1280, 720], [1280, 1024], [1440, 900],
@@ -15,6 +16,7 @@ export function VCMIConfig() {
     const t = useT();
     const config = useSelector((state: State) => state.ui.config);
     const [index, setIndex] = useState<number>(0);
+    const [downloadLink, setDownloadLink] = useState<string | null>(null);
 
     function resetConfig() {
         setIndex(0);
@@ -71,14 +73,50 @@ export function VCMIConfig() {
                 })}
             </select>
         </div>
+
+        <div class="flex flex-row justify-between gap-4">
+            <button onClick={resetConfig}>{t("reset")}</button>
+            {downloadLink !== null &&
+                <a href={downloadLink} target="_blank">{t("archive_link")}</a>
+            }
+            {downloadLink === null && <button onClick={async () => {
+                const writer = new ZipWriter(new BlobWriter("application/zip"), { bufferedWrite: true, level: 0, });
+                const db = await getFilesDB();
+                await db.forEach((key, value) => {
+                    if (value.length > 0) {
+                        writer.add(key, new Uint8ArrayReader(value));
+                    }
+                });
+                if (downloadLink !== null) {
+                    URL.revokeObjectURL(downloadLink);
+                }
+                setDownloadLink(URL.createObjectURL(await writer.close()));
+            }}>{t("download_saves")}</button>
+            }
+            <button onClick={() => {
+                document.getElementById("upload-file")?.click();
+            }}>{t("upload_saves")}</button>
+            <input type="file" id="upload-file" class="hidden" onChange={async (e) => {
+                const files = e.currentTarget.files;
+                if (files !== null && files.length > 0) {
+                    const file = files[0];
+                    if (file.name.endsWith("vsgm1")) {
+                        const db = await getFilesDB();
+                        await db.put("/home/web_user/.local/share/vcmi/Saves/" + file.name, 
+                            new Uint8Array(await file.arrayBuffer()));
+                        alert("Ok");
+                    }
+                }
+            }}></input>
+        </div>
+
         <div class="field-row-stacked w-full">
             <label for="config-text">{t("config")}</label>
             <textarea id="config-text" rows={8} value={config}
                 onChange={(e) => dispatch(uiSlice.actions.setConfig(e.currentTarget.value))}></textarea>
         </div>
 
-        <div class="flex flex-row justify-between">
-            <button onClick={resetConfig}>{t("reset")}</button>
+        <div class="flex flex-row justify-end">
 
             <button onClick={() => {
                 dispatch(uiSlice.actions.step("STARTED"));

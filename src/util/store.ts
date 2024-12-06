@@ -3,7 +3,7 @@ import { resetModule } from "./module";
 import { getFilesDB } from "./db";
 
 export const dataVersion = "1.5.7-wasm-rc";
-export const version = "1.5.7-wasm-rc-1";
+export const version = "1.5.7-wasm-rc-2";
 export const vcmiDataUrl = "vcmi/vcmi.data.js";
 const maxSize = 1440;
 const minSize = 600;
