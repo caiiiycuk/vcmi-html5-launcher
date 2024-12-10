@@ -22,7 +22,10 @@ const initialUiState: {
     version: string,
 } = {
     lang: navigator.language.startsWith("ru") ? "ru" : "en",
-    homm3DataUrl: localStorage.getItem("vcmi.dataUrl") ?? "",
+    homm3DataUrl: (() => {
+        const params = new URLSearchParams(location.search);
+        return params.get("url") ?? localStorage.getItem("vcmi.dataUrl") ?? "";
+    })(),
     step: "DATA_SELECT",
     config: localStorage.getItem("vcmi.config") ?? defaultConfig(),
     version,
