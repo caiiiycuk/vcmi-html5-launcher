@@ -56,6 +56,7 @@ function App() {
 }
 
 (function() {
+    console.log("The host:", window.parent.location.host);
     render(
         <Provider store={store}>
             {<App /> as any}
