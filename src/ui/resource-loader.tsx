@@ -1,6 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import { loadResource } from "../util/resource";
-import { dataVersion, State, uiSlice } from "../util/store";
+import { dataVersion, State, uiSlice, dataUrl, wasmUrl, localizedDataUrl } from "../util/store";
 import { useDispatch, useSelector } from "react-redux";
 import { wasmInstantiate } from "../util/wasm";
 import { useT } from "../i18n";
@@ -10,12 +10,11 @@ import { VCMI_DATA, VCMI_MODULE } from "../util/module";
 export function Loader(props: {
     resourceType: "datafile" | "wasm",
 }) {
-    const dataUrl = useSelector((state: State) => state.ui.vcmiDataUrl);
     let homm3DataUrl = useSelector((state: State) => state.ui.homm3DataUrl);
     if (homm3DataUrl.length > 0 && homm3DataUrl[homm3DataUrl.length - 1] !== "/") {
         homm3DataUrl += "/";
     }
-    const wasmUrl = useSelector((state: State) => state.ui.wasmUrl);
+    const lang = useSelector((state: State) => state.ui.lang);
     const [file, setFile] = useState<string>("");
     const [progress, setProgress] = useState<number>(0);
     const [error, setError] = useState<string | null>(null);
@@ -25,28 +24,53 @@ export function Loader(props: {
         setError(null);
         (async () => {
             if (props.resourceType === "datafile") {
-                // load vcmi data
-                setFile("VCMI/Data");
                 const db = await getDataDB();
-                const dataContentsUrl = dataUrl.substring(0, dataUrl.length - 3);
-                const dataKey = dataVersion + ".data";
-                const dataContentsKey = dataVersion + ".contents";
-                let [data, dataContents] = await Promise.all([db.get(dataKey),
-                    db.get(dataContentsKey)]);
-                let dataJs = null;
-                if (data !== null) {
-                    dataJs = new TextDecoder().decode(data);
-                }
-                if (dataJs === null || dataContents === null) {
-                    dataJs = await loadResource(dataUrl, "text", () => { }) as string;
-                    dataContents = new Uint8Array(await loadResource(dataContentsUrl,
-                        "arraybuffer", setProgress) as ArrayBuffer);
-                    db.put(dataKey, new TextEncoder().encode(dataJs)).catch(console.error);
-                    db.put(dataContentsKey, dataContents).catch(console.error);
+
+                const loadDataFile = async (dataUrl: string, dataKeyPrefix: string) => {
+                    const dataContentsUrl = dataUrl.substring(0, dataUrl.length - 3);
+                    const dataKey = dataKeyPrefix + ".data.js";
+                    const dataContentsKey = dataKeyPrefix + ".data";
+                    let [data, dataContents] = await Promise.all([db.get(dataKey),
+                        db.get(dataContentsKey)]);
+                    let dataJs: string | null = null;
+                    if (data !== null) {
+                        dataJs = new TextDecoder().decode(data);
+                    }
+                    if (dataJs === null || dataContents === null) {
+                        dataJs = await loadResource(dataUrl, "text", () => { }) as string;
+                        dataContents = new Uint8Array(await loadResource(dataContentsUrl,
+                            "arraybuffer", setProgress) as ArrayBuffer);
+                        db.put(dataKey, new TextEncoder().encode(dataJs)).catch(console.error);
+                        db.put(dataContentsKey, dataContents).catch(console.error);
+                    }
+
+                    return [dataJs, dataContents.buffer] as [string, ArrayBuffer];
+                };
+
+                // load vcmi data
+                {
+                    setFile("VCMI/Data");
+                    VCMI_MODULE.data = await loadDataFile(dataUrl, dataVersion);
                 }
 
-                VCMI_MODULE.dataJs = dataJs;
-                VCMI_MODULE.getPreloadedPackage = (name: any, size: any) => dataContents.buffer;
+                // load localized data
+                {
+                    const key = lang === "ru" ? "ru" : "en";
+                    setFile("VCMI/" + key + "-Data");
+                    VCMI_MODULE.localizedData = await loadDataFile(localizedDataUrl[key], dataVersion + "-" + key);
+                }
+
+                VCMI_MODULE.getPreloadedPackage = (name: any, size: any) => {
+                    let data;
+                    if (name === "vcmi.data") {
+                        data = VCMI_MODULE.data![1];
+                        delete VCMI_MODULE.data;
+                    } else {
+                        data = VCMI_MODULE.localizedData![1];
+                        delete VCMI_MODULE.localizedData;
+                    }
+                    return data;
+                };
 
                 // load homm3 data
                 const homm3Files: FileList | undefined = VCMI_MODULE.homm3Files;
@@ -103,9 +127,9 @@ export function Loader(props: {
 
                     /* eslint-disable-next-line new-cap */
                     (window as any).VCMI(Module)
-                        .then((Module: any) => {
-                            eval(Module.dataJs);
-                            delete Module.dataJs;
+                        .then((Module: typeof VCMI_MODULE) => {
+                            eval(Module.data![0]);
+                            eval(Module.localizedData![0]);
                             dispatch(uiSlice.actions.step("READY_TO_RUN"));
                         })
                         .catch((e: any) => {
@@ -123,7 +147,7 @@ export function Loader(props: {
             setError(e.message ?? "unknown error");
             console.error(e);
         });
-    }, [dataUrl, wasmUrl, homm3DataUrl, props.resourceType]);
+    }, [homm3DataUrl, props.resourceType, lang]);
 
     return <div class="flex flex-col">
         <article class="pt-0" role="tabpanel">
