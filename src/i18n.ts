@@ -28,6 +28,11 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         download_saves: "Скачать сохранения",
         upload_saves: "Загрузить сохранение",
         archive_link: "Ссылка на архив",
+        instructions: "Инструкции",
+        i1_download_zip: "1. Скачайте архив с файлами игры",
+        i1_download_button: "Скачать",
+        i2_extract_zip_to_folder: "2. Извлеките архив в каталог",
+        i3_select_folder: "3. Выберите каталог с игрой используя кнопку ниже",
     },
     en: {
         title: "Heroes Of Might And Magic III" + " " + version,
@@ -52,6 +57,11 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         download_saves: "Download saves",
         upload_saves: "Upload save",
         archive_link: "Link to game archive",
+        instructions: "Instructions",
+        i1_download_zip: "1. Download zip archive with game files",
+        i1_download_button: "Download",
+        i2_extract_zip_to_folder: "2. Extract zip archive to folder",
+        i3_select_folder: "3. Select folder with game using button below",
     },
 };
 

@@ -110,8 +110,10 @@ export function Loader(props: {
                 dispatch(uiSlice.actions.step("LOADING_WASM"));
             } else if (props.resourceType === "wasm") {
                 setFile("VCMI/WebAssembly");
+                const wasmScript = await loadResource(wasmUrl, "text", setProgress) as string;
+                const wasmScriptUrl = URL.createObjectURL(new Blob([wasmScript], { type: "text/javascript" }));
                 const script = document.createElement("script");
-                script.src = wasmUrl;
+                script.src = wasmScriptUrl;
                 script.onload = () => {
                     const Module = VCMI_MODULE;
 

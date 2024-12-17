@@ -4,11 +4,11 @@ import { getFilesDB } from "./db";
 
 export const dataVersion = "1.5.7-wasm";
 export const version = "1.5.7-wasm";
-export const wasmUrl = "vcmi/vcmiclient.js";
-export const dataUrl = "vcmi/vcmi.data.js";
+export const wasmUrl = "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmiclient.js";
+export const dataUrl = "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.data.js";
 export const localizedDataUrl = {
-    "en": "vcmi/en.data.js",
-    "ru": "vcmi/ru.data.js",
+    "en": "https://caiiiycuk.github.io/vcmi-wasm/vcmi/en.data.js",
+    "ru": "https://caiiiycuk.github.io/vcmi-wasm/vcmi/ru.data.js",
 };
 
 const maxSize = 1440;

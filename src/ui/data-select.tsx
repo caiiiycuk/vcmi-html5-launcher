@@ -12,6 +12,7 @@ export function DataSelect() {
     const [dataType, setDataType] = useState<"file" | "url" | "db">("url");
     const [hoMM3InDB, setHoMM3InDB] = useState<boolean>(false);
     const [dbReady, setDBReady] = useState<boolean>(false);
+    const [zipUrl, setZipUrl] = useState<boolean>(false);
 
     useEffect(() => {
         const onend = () => {
@@ -68,7 +69,33 @@ export function DataSelect() {
                 </label>
             </div>
         </article>
-        <fieldset>
+        {zipUrl && <fieldset>
+            <legend>{t("instructions")}</legend>
+            <div>
+                {t("i1_download_zip")}
+            </div>
+            <div class="ml-4 my-3">
+                <a class="text-lg underline cursor-pointer" href={dataUrl} target="_blank"
+                    rel="noopener noreferrer">{t("i1_download_button")}</a>
+            </div>
+            <div class="my-3 font-bold">
+                {t("i2_extract_zip_to_folder")}
+            </div>
+            <div class="my-3">
+                {t("i3_select_folder")}
+            </div>
+            <div class="field-row">
+                <input class="ml-4" id="data-file" type="file" name="data-file"
+                    {... { webkitdirectory: true, directory: true }}
+                    onChange={(e) => {
+                        if (e.currentTarget.files !== null) {
+                            setDataType("file");
+                            VCMI_MODULE.homm3Files = e.currentTarget.files;
+                        }
+                    }} />
+            </div>
+        </fieldset> }
+        {!zipUrl && <fieldset>
             <legend>{t("data_source")}</legend>
             <div class="field-row">
                 <input disabled={!dbReady} checked={dataType === "file"}
@@ -107,7 +134,7 @@ export function DataSelect() {
                     id="data-db" type="radio" name="data-source" />
                 <label for="data-db">{t("data_db")}</label>
             </div>
-        </fieldset>
+        </fieldset> }
         {dbReady &&
             <div class="flex flex-row gap-1">
                 <button class="min-w-4" onClick={() => window.open("https://t.me/dzhomm3", "_blank")}>
@@ -127,7 +154,11 @@ export function DataSelect() {
                         if (dataType !== "file") {
                             delete VCMI_MODULE.homm3Files;
                         }
-                        dispatch(uiSlice.actions.step("LOADING_DATA"));
+                        if (dataType === "url" && dataUrl.toLowerCase().endsWith(".zip")) {
+                            setZipUrl(true);
+                        } else {
+                            dispatch(uiSlice.actions.step("LOADING_DATA"));
+                        }
                     }}
                     disabled={dataUrl.length === 0 && dataType === "url"}
                 >

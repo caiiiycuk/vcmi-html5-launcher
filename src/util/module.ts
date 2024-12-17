@@ -1,6 +1,5 @@
 import { getFilesDB } from "./db";
 import { loadResource } from "./resource";
-import { dataUrl } from "./store";
 
 export const VCMI_DATA: { [file: string]: Uint8Array | null } = {
     "H3ab_ahd.snd": null,
@@ -77,7 +76,7 @@ export function resetModule() {
                 return;
             }
             loadedMusic[file] = true;
-            const url = dataUrl.substring(0, dataUrl.lastIndexOf("/")) + file;
+            const url = "/launcher/vcmi" + file;
             const music = await loadResource(url, "arraybuffer") as ArrayBuffer;
             module.FS!.unlink(file);
             module.fsWrite(file, new Uint8Array(music));
