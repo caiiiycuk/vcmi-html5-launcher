@@ -94,7 +94,7 @@ export function DataSelect() {
                         }
                     }} />
             </div>
-        </fieldset> }
+        </fieldset>}
         {!zipUrl && <fieldset>
             <legend>{t("data_source")}</legend>
             <div class="field-row">
@@ -134,14 +134,20 @@ export function DataSelect() {
                     id="data-db" type="radio" name="data-source" />
                 <label for="data-db">{t("data_db")}</label>
             </div>
-        </fieldset> }
+        </fieldset>}
         {dbReady &&
             <div class="flex flex-row gap-1">
                 <button class="min-w-4" onClick={() => window.open("https://t.me/dzhomm3", "_blank")}>
                     <p class="tg-link size-5 p-0 m-0"></p>
                 </button>
-                <button class="min-w-4" onClick={() => window.open("https://discord.gg/pkYfG7CV8E", "_blank")}>
-                    <p class="discord-link size-5 p-0 m-0"></p>
+                <button class="min-w-4" onClick={() => dispatch(uiSlice.actions.step("ABOUT"))}>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="1.5" stroke="currentColor" class="size-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025
+                            3.071-1.025 4.242 0 1.172 1.025 1.172 2.687
+                            0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45
+                            1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" />
+                    </svg>
                 </button>
                 <div class="flex-grow"></div>
                 <button class="self-end"

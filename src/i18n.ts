@@ -33,6 +33,12 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         i1_download_button: "Скачать",
         i2_extract_zip_to_folder: "2. Извлеките архив в каталог",
         i3_select_folder: "3. Выберите каталог с игрой используя кнопку ниже",
+        about: "О программе",
+        about_text: "Программа для запуска игры Heroes of Might and Magic III в браузере. Основана на открытом движке VCMI. Исходный код доступен на GitHub [1].",
+        authors: "Авторы:",
+        links: "Ссылки:",
+        source_code: "Исходный код",
+        support: "Поддержать проект",
     },
     en: {
         title: "Heroes Of Might And Magic III" + " " + version,
@@ -62,6 +68,12 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         i1_download_button: "Download",
         i2_extract_zip_to_folder: "2. Extract zip archive to folder",
         i3_select_folder: "3. Select folder with game using button below",
+        about: "About",
+        about_text: "Program for running Heroes of Might and Magic III in browser. Based on opensource engine VCMI. Source code is available on GitHub [1].",
+        authors: "Authors:",
+        links: "Links:",
+        source_code: "Source code",
+        support: "Support",
     },
 };
 

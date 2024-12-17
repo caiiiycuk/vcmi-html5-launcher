@@ -10,6 +10,7 @@ import { VCMIWindow } from "./ui/vcmi-window";
 import { useT } from "./i18n";
 import { DataSelect } from "./ui/data-select";
 import { VCMIConfig } from "./ui/vcmi-config";
+import { About } from "./ui/about";
 
 function Page() {
     const state = useSelector((state: State) => state.ui.step);
@@ -25,6 +26,8 @@ function Page() {
             return <Loader resourceType="wasm" />;
         case "READY_TO_RUN":
             return <VCMIConfig />;
+        case "ABOUT":
+            return <About />;
     }
 
     return null;
@@ -56,7 +59,12 @@ function App() {
 }
 
 (function() {
-    console.log("The host:", window.parent.location.host);
+    try {
+        console.log("The host:", window.parent.location.host);
+        location.href = "https://dos.zone/homm3/";
+    } catch (e) {
+        // ignore
+    }
     render(
         <Provider store={store}>
             {<App /> as any}

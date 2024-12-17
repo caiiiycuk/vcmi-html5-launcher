@@ -18,7 +18,7 @@ const params = new URLSearchParams(location.search);
 const initialUiState: {
     lang: "ru" | "en",
     homm3DataUrl: string,
-    step: "DATA_SELECT" | "LOADING_DATA" | "LOADING_WASM" | "READY_TO_RUN" | "STARTED",
+    step: "DATA_SELECT" | "LOADING_DATA" | "LOADING_WASM" | "READY_TO_RUN" | "STARTED" | "ABOUT",
     config: string,
     version: string,
 } = {
