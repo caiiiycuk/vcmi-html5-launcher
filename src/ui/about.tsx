@@ -24,8 +24,8 @@ export function About() {
                                 target="_blank" rel="noopener noreferrer">@NicCarter54</a> - Idea, Philosophy, Testing
                         </div>
                         <div class="flex flex-row items-center gap-4">
-                            <a class="font-bold w-28" href="#"
-                                target="_blank" rel="noopener noreferrer">@AlekseyTimofeev</a> - Testing
+                            <a class="font-bold w-28" href="https://github.com/AlexSnowLeo"
+                                target="_blank" rel="noopener noreferrer">@AlexSnowLeo</a> - Testing
                         </div>
                         <div class="flex flex-row items-center gap-4">
                             <a class="font-bold w-28" href="https://vcmi.eu/"
