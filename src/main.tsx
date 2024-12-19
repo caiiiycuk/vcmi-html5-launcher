@@ -63,7 +63,7 @@ function App() {
         const host = window.parent.location.host;
         console.log("The host:", host);
         if (!host.startsWith("localhost:")) {
-            location.href = "https://dos.zone/homm3/";
+            location.href = "https://sec.dos.zone/homm3/";
         }
     } catch (e) {
         // ignore

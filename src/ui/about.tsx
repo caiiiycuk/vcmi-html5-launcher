@@ -39,7 +39,7 @@ export function About() {
                                 target="_blank" rel="noopener noreferrer">{t("support")}</a>
                         </div>
                         <div class="flex flex-row items-center gap-4">
-                            <a class="font-bold w-28" href="https://github.com/caiiiycuk"
+                            <a class="font-bold w-28" href="https://github.com/caiiiycuk/vcmi-wasm"
                                 target="_blank" rel="noopener noreferrer">[1] {t("source_code")}</a>
                         </div>
                     </div>
