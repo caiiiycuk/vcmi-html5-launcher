@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { wasmInstantiate } from "../util/wasm";
 import { useT } from "../i18n";
 import { getDataDB } from "../util/db";
-import { VCMI_DATA, VCMI_MODULE } from "../util/module";
+import { normalizeDataFileName, VCMI_DATA, VCMI_MODULE } from "../util/module";
 
 export function Loader(props: {
     resourceType: "datafile" | "wasm",
@@ -79,10 +79,11 @@ export function Loader(props: {
                     setFile("Searching in " + homm3Files.length + " files");
                     let processed = 0;
                     for (const next of homm3Files) {
-                        if (VCMI_DATA[next.name] === null) {
-                            setFile("Uploading " + next.name);
-                            VCMI_DATA[next.name] = new Uint8Array(await next.arrayBuffer());
-                            db.put(next.name, VCMI_DATA[next.name]!).catch(console.error);
+                        const name = normalizeDataFileName(next.name);
+                        if (VCMI_DATA[name] === null) {
+                            setFile("Uploading " + name);
+                            VCMI_DATA[name] = new Uint8Array(await next.arrayBuffer());
+                            db.put(name, VCMI_DATA[name]!).catch(console.error);
                         }
                         processed++;
                         setProgress(Math.round(processed / homm3Files.length));
@@ -100,8 +101,15 @@ export function Loader(props: {
                         index += 1;
                         setFile("HOMM3/" + next + " (" + index + "/" + Object.keys(VCMI_DATA).length + ")");
                         if (VCMI_DATA[next] === null) {
-                            VCMI_DATA[next] = new Uint8Array(await loadResource(
-                                homm3DataUrl + "Data/" + next, "arraybuffer", setProgress) as any);
+                            try {
+                                VCMI_DATA[next] = new Uint8Array(await loadResource(
+                                    homm3DataUrl + "Data/" + next, "arraybuffer", setProgress) as any);
+                            } catch (e) {
+                                // try also lowercase
+                                console.error(e);
+                                VCMI_DATA[next] = new Uint8Array(await loadResource(
+                                    homm3DataUrl + "Data/" + next.toLowerCase(), "arraybuffer", setProgress) as any);
+                            }
                             db.put(next, VCMI_DATA[next]).catch(console.error);
                         }
                     }

@@ -60,8 +60,11 @@ function App() {
 
 (function() {
     try {
-        console.log("The host:", window.parent.location.host);
-        location.href = "https://dos.zone/homm3/";
+        const host = window.parent.location.host;
+        console.log("The host:", host);
+        if (!host.startsWith("localhost:")) {
+            location.href = "https://dos.zone/homm3/";
+        }
     } catch (e) {
         // ignore
     }

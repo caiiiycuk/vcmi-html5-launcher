@@ -10,6 +10,12 @@ export const VCMI_DATA: { [file: string]: Uint8Array | null } = {
     "Heroes3.snd": null,
 };
 
+export function normalizeDataFileName(name: string) {
+    const lower = name.toLowerCase();
+    return lower.charAt(0).toUpperCase() + lower.slice(1);
+}
+
+
 export const VCMI_MODULE: {
     homm3Files?: FileList,
     canvas?: HTMLCanvasElement,
