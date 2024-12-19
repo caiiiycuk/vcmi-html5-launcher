@@ -82,7 +82,7 @@ export function resetModule() {
                 return;
             }
             loadedMusic[file] = true;
-            const url = "/launcher/vcmi" + file;
+            const url = "/vcmi/launcher/vcmi" + file;
             const music = await loadResource(url, "arraybuffer") as ArrayBuffer;
             module.FS!.unlink(file);
             module.fsWrite(file, new Uint8Array(music));
