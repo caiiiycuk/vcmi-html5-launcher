@@ -31,7 +31,7 @@ export function Loader(props: {
                     const dataKey = dataKeyPrefix + ".data.js";
                     const dataContentsKey = dataKeyPrefix + ".data";
                     let [data, dataContents] = await Promise.all([db.get(dataKey),
-                        db.get(dataContentsKey)]);
+                    db.get(dataContentsKey)]);
                     let dataJs: string | null = null;
                     if (data !== null) {
                         dataJs = new TextDecoder().decode(data);
@@ -136,16 +136,21 @@ export function Loader(props: {
                     };
 
                     /* eslint-disable-next-line new-cap */
-                    (window as any).VCMI(Module)
-                        .then((Module: typeof VCMI_MODULE) => {
-                            eval(Module.data![0]);
-                            eval(Module.localizedData![0]);
-                            dispatch(uiSlice.actions.step("READY_TO_RUN"));
-                        })
-                        .catch((e: any) => {
-                            console.error(e);
-                            setError(e.message ?? "wasm instantiation error");
-                        });
+                    try {
+                        (window as any).VCMI(Module)
+                            .then((Module: typeof VCMI_MODULE) => {
+                                eval(Module.data![0]);
+                                eval(Module.localizedData![0]);
+                                dispatch(uiSlice.actions.step("READY_TO_RUN"));
+                            })
+                            .catch((e: any) => {
+                                console.error(e);
+                                setError(e.message ?? "wasm instantiation error");
+                            });
+                    } catch (e: any) {
+                        console.error(e);
+                        setError(e.message ?? "wasm instantiation error");
+                    }
                 };
                 script.onerror = (e) => {
                     console.error(e);
