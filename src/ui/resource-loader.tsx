@@ -31,7 +31,7 @@ export function Loader(props: {
                     const dataKey = dataKeyPrefix + ".data.js";
                     const dataContentsKey = dataKeyPrefix + ".data";
                     let [data, dataContents] = await Promise.all([db.get(dataKey),
-                    db.get(dataContentsKey)]);
+                        db.get(dataContentsKey)]);
                     let dataJs: string | null = null;
                     if (data !== null) {
                         dataJs = new TextDecoder().decode(data);

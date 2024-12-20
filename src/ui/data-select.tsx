@@ -13,6 +13,10 @@ export function DataSelect() {
     const [hoMM3InDB, setHoMM3InDB] = useState<boolean>(false);
     const [dbReady, setDBReady] = useState<boolean>(false);
     const [zipUrl, setZipUrl] = useState<boolean>(false);
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const inputOptions = isMobile ?
+        { multiple: true } :
+        { webkitdirectory: true, directory: true };
 
     useEffect(() => {
         const onend = () => {
@@ -86,7 +90,7 @@ export function DataSelect() {
             </div>
             <div class="field-row">
                 <input class="ml-4" id="data-file" type="file" name="data-file"
-                    {... { webkitdirectory: true, directory: true }}
+                    {... inputOptions}
                     onChange={(e) => {
                         if (e.currentTarget.files !== null) {
                             setDataType("file");
@@ -105,7 +109,7 @@ export function DataSelect() {
             </div>
             <div class="field-row">
                 <input class="ml-4" id="data-file" type="file" name="data-file"
-                    {... { webkitdirectory: true, directory: true }}
+                    {... inputOptions}
                     onChange={(e) => {
                         if (e.currentTarget.files !== null) {
                             setDataType("file");

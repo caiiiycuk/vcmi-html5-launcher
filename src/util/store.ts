@@ -3,7 +3,7 @@ import { resetModule } from "./module";
 import { getFilesDB } from "./db";
 
 export const dataVersion = "1.5.7-wasm";
-export const version = "1.5.7-wasm(3)";
+export const version = "1.5.7-wasm-4";
 export const wasmUrl = "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmiclient.js";
 export const dataUrl = "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.data.js";
 export const localizedDataUrl = {
