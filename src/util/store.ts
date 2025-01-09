@@ -3,7 +3,7 @@ import { resetModule } from "./module";
 import { getFilesDB } from "./db";
 
 export const dataVersion = "1.5.7-wasm";
-export const version = "1.5.7-wasm-4";
+export const version = "1.5.7-wasm-5";
 export const wasmUrl = "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmiclient.js";
 export const dataUrl = "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.data.js";
 export const localizedDataUrl = {
@@ -24,7 +24,7 @@ const initialUiState: {
 } = {
     lang: (params.get("lang") ?? navigator.language).startsWith("ru") ? "ru" : "en",
     homm3DataUrl: params.get("url") ?? localStorage.getItem("vcmi.dataUrl") ?? "",
-    step: "DATA_SELECT",
+    step: "LOADING_WASM", // "DATA_SELECT",
     config: localStorage.getItem("vcmi.config") ?? defaultConfig(),
     version,
 };

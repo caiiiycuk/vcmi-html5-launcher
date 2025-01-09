@@ -115,7 +115,12 @@ export function Loader(props: {
                     }
                 }
 
-                dispatch(uiSlice.actions.step("LOADING_WASM"));
+
+                // eslint-disable-next-line no-unused-vars
+                const Module = VCMI_MODULE;
+                eval(VCMI_MODULE.data![0]);
+                eval(VCMI_MODULE.localizedData![0]);
+                dispatch(uiSlice.actions.step("READY_TO_RUN"));
             } else if (props.resourceType === "wasm") {
                 setFile("VCMI/WebAssembly");
                 const wasmScript = await loadResource(wasmUrl, "text", setProgress) as string;
@@ -135,13 +140,11 @@ export function Loader(props: {
                         return receiveInstance(instance.instance, instance.wasmModule);
                     };
 
-                    /* eslint-disable-next-line new-cap */
                     try {
+                        /* eslint-disable-next-line new-cap */
                         (window as any).VCMI(Module)
-                            .then((Module: typeof VCMI_MODULE) => {
-                                eval(Module.data![0]);
-                                eval(Module.localizedData![0]);
-                                dispatch(uiSlice.actions.step("READY_TO_RUN"));
+                            .then((_module: typeof VCMI_MODULE) => {
+                                dispatch(uiSlice.actions.step("DATA_SELECT"));
                             })
                             .catch((e: any) => {
                                 console.error(e);
@@ -178,9 +181,9 @@ export function Loader(props: {
                 <p class="my-0 text-xl">{t("error")}</p >
                 <p class="text-red-500 font-bold">{error}</p>
                 <p class="text-gray-600">{t("open_browser_logs")}</p>
-                <button onClick={() => {
+                {props.resourceType !== "wasm" && <button onClick={() => {
                     dispatch(uiSlice.actions.step("DATA_SELECT"));
-                }}>{t("back")}</button>
+                }}>{t("back")}</button> }
             </div>
         }
     </div>;

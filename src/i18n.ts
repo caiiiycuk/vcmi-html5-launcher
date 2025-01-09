@@ -39,6 +39,7 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         links: "Ссылки:",
         source_code: "Исходный код",
         support: "Поддержать проект",
+        more: "Подробнее",
     },
     en: {
         title: "Heroes Of Might And Magic III" + " " + version,
@@ -74,6 +75,7 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         links: "Links:",
         source_code: "Source code",
         support: "Support",
+        more: "Details",
     },
 };
 

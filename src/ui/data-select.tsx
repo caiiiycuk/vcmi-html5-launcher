@@ -13,6 +13,7 @@ export function DataSelect() {
     const [hoMM3InDB, setHoMM3InDB] = useState<boolean>(false);
     const [dbReady, setDBReady] = useState<boolean>(false);
     const [zipUrl, setZipUrl] = useState<boolean>(false);
+    const [shortLegal, setShortLegal] = useState<boolean>(true);
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     const inputOptions = isMobile ?
         { multiple: true } :
@@ -56,22 +57,34 @@ export function DataSelect() {
 
     return <div class="flex flex-col">
         <article class="pt-0" role="tabpanel">
-            <h3 class="my-4">{t("legal")}</h3>
-            <p>
-                {t("legal_text")}
-            </p>
-            <p class="mt-2">
-                [1] — <a href="https://github.com/vcmi/"
-                    target="_blank">VCMI</a> ;
-                [2] — <a href="https://www.gog.com/en/game/heroes_of_might_and_magic_3_complete_edition"
-                    target="_blank">HoMM3</a>
-            </p>
+            {!shortLegal &&
+                <>
+                    <h3 class="my-4">{t("legal")}</h3>
+                    <p>
+                        {t("legal_text")}
+                    </p>
+                    <p class="mt-2">
+                        [1] — <a href="https://github.com/vcmi/"
+                            target="_blank">VCMI</a> ;
+                        [2] — <a href="https://www.gog.com/en/game/heroes_of_might_and_magic_3_complete_edition"
+                            target="_blank">HoMM3</a>
+                    </p>
+                </>
+            }
             <div class="field-row mt-4">
                 <input checked type="checkbox" disabled id="confirm_legal_copy" />
                 <label class="font-bold" for="confirm_legal_copy">
                     {t("confirm_legal_copy")}
                 </label>
             </div>
+            {shortLegal &&
+                <a href="#" class="absolute px-1 -bottom-1 right-4 bg-white" onClick={(e) => {
+                    e.preventDefault();
+                    setShortLegal(false);
+                }}>
+                    {t("more")}
+                </a>
+            }
         </article>
         {zipUrl && <fieldset>
             <legend>{t("instructions")}</legend>
@@ -90,7 +103,7 @@ export function DataSelect() {
             </div>
             <div class="field-row">
                 <input class="ml-4" id="data-file" type="file" name="data-file"
-                    {... inputOptions}
+                    {...inputOptions}
                     onChange={(e) => {
                         if (e.currentTarget.files !== null) {
                             setDataType("file");
@@ -109,7 +122,7 @@ export function DataSelect() {
             </div>
             <div class="field-row">
                 <input class="ml-4" id="data-file" type="file" name="data-file"
-                    {... inputOptions}
+                    {...inputOptions}
                     onChange={(e) => {
                         if (e.currentTarget.files !== null) {
                             setDataType("file");
