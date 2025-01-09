@@ -115,11 +115,9 @@ export function Loader(props: {
                     }
                 }
 
-
-                // eslint-disable-next-line no-unused-vars
                 const Module = VCMI_MODULE;
-                eval(VCMI_MODULE.data![0]);
-                eval(VCMI_MODULE.localizedData![0]);
+                eval(Module.data![0]);
+                eval(Module.localizedData![0]);
                 dispatch(uiSlice.actions.step("READY_TO_RUN"));
             } else if (props.resourceType === "wasm") {
                 setFile("VCMI/WebAssembly");
@@ -179,11 +177,14 @@ export function Loader(props: {
         {error &&
             <div class="mx-2 font-mono">
                 <p class="my-0 text-xl">{t("error")}</p >
+                {error.indexOf("SharedArrayBuffer") !== -1 &&
+                    <p class="text-red-500 font-bold">{t("browser_is_not_supported")}</p>
+                }
                 <p class="text-red-500 font-bold">{error}</p>
                 <p class="text-gray-600">{t("open_browser_logs")}</p>
                 {props.resourceType !== "wasm" && <button onClick={() => {
                     dispatch(uiSlice.actions.step("DATA_SELECT"));
-                }}>{t("back")}</button> }
+                }}>{t("back")}</button>}
             </div>
         }
     </div>;

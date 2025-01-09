@@ -40,6 +40,7 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         source_code: "Исходный код",
         support: "Поддержать проект",
         more: "Подробнее",
+        browser_is_not_supported: "Браузер не поддерживается. Пожалуйста, используйте Chrome, Firefox, Edge или Safari",
     },
     en: {
         title: "Heroes Of Might And Magic III" + " " + version,
@@ -76,6 +77,7 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         source_code: "Source code",
         support: "Support",
         more: "Details",
+        browser_is_not_supported: "Browser is not supported. Please use Chrome, Firefox, Edge or Safari",
     },
 };
 
