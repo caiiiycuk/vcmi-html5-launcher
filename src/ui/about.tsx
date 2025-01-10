@@ -1,10 +1,11 @@
-import { useDispatch } from "react-redux";
-import { uiSlice, version } from "../util/store";
+import { useDispatch, useSelector } from "react-redux";
+import { State, uiSlice } from "../util/store";
 import { useT } from "../i18n";
 
 export function About() {
     const dispatch = useDispatch();
     const t = useT();
+    const version = useSelector((state: State) => state.ui.client);
 
     return (
         <div class="flex flex-col">

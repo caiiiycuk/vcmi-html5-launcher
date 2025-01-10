@@ -1,17 +1,19 @@
 /* eslint-disable max-len */
 
 import { useSelector } from "react-redux";
-import { State, version } from "./util/store";
+import { State } from "./util/store";
+import { version } from "preact/compat";
 
 
 const translations: {[lang: string]: {[key: string]: string} } = {
     ru: {
-        title: "Герои Меча и Магии III" + " " + version,
+        title: "Герои Меча и Магии III",
         confirm_legal_copy: "Я подтверждаю, что у меня есть легальная копия игры.",
         legal: "Права",
         legal_text: "Игра основана на движке с открытым исходныи кодом VCMI[1]. Что бы начать играть необходимо указать URL с данными оригинальной игры HoMM3[2], либо вы можете загрузить их. Вы не можете продолжить если Вы не приобретали оригинальную игру.",
         data_source: "Источник данных",
-        data_directory: "Установленная игра (выбрать каталог)",
+        data_archive: "Архив с файлами игры",
+        data_archive_text: "Нажмите 'Выберите файл' и укажите архив который вы только что скачали. Архив должен содержать файлы игры в корневой папке.",
         data_db: "Ранее загруженные",
         next: "Продолжить",
         back: "Назад",
@@ -41,14 +43,19 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         support: "Поддержать проект",
         more: "Подробнее",
         browser_is_not_supported: "Браузер не поддерживается. Пожалуйста, используйте Chrome, Firefox, Edge или Safari",
+        client: "Клиент",
+        version: "Версия",
+        data_provider: "Archive.org",
+        language: "Язык",
     },
     en: {
-        title: "Heroes Of Might And Magic III" + " " + version,
+        title: "Heroes Of Might And Magic III",
         confirm_legal_copy: "I confirm that I have a legal copy of the game.",
         legal: "Legal",
         legal_text: "The game based on opensource engine VCMI[1]. To start playing, you need to provide the URL with data of the original HoMM3[2] game files, or you can upload them. You can't continue if you have not purchased the original game.",
         data_source: "Data source",
-        data_directory: "Installed game (select folder)",
+        data_archive: "Archive with game files",
+        data_archive_text: "Click 'Select file' and select the archive you just downloaded. The archive must contain the game files in the root folder.",
         data_db: "Already uploaded",
         next: "Next",
         back: "Back",
@@ -78,6 +85,10 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         support: "Support",
         more: "Details",
         browser_is_not_supported: "Browser is not supported. Please use Chrome, Firefox, Edge or Safari",
+        client: "Client",
+        version: "Version",
+        data_provider: "Archive.org",
+        language: "Language",
     },
 };
 

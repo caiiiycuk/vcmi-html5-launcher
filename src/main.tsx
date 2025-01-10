@@ -11,19 +11,20 @@ import { useT } from "./i18n";
 import { DataSelect } from "./ui/data-select";
 import { VCMIConfig } from "./ui/vcmi-config";
 import { About } from "./ui/about";
+import { ModuleSelect } from "./ui/module-select";
 
 function Page() {
     const state = useSelector((state: State) => state.ui.step);
 
     switch (state) {
+        case "MODULE_SELECT":
+            return <ModuleSelect />;
         case "DATA_SELECT": {
             return <DataSelect />;
         };
         case "LOADING_DATA": {
             return <Loader resourceType="datafile" />;
         };
-        case "LOADING_WASM":
-            return <Loader resourceType="wasm" />;
         case "READY_TO_RUN":
             return <VCMIConfig />;
         case "ABOUT":
@@ -36,15 +37,16 @@ function Page() {
 function App() {
     const t = useT();
     const state = useSelector((state: State) => state.ui.step);
+    const client = useSelector((state: State) => state.ui.client);
 
     if (state === "STARTED") {
         return <VCMIWindow />;
     }
 
-    return <div class="flex flex-col w-full h-full items-center justify-center">
-        <div class="window w-96 overflow-y-auto">
+    return <div class="flex flex-col w-full h-full items-center md:justify-center md:mt-0 mt-2">
+        <div class="window md:w-96 w-full overflow-y-auto">
             <div class="title-bar">
-                <div class="title-bar-text">{t("title")}</div>
+                <div class="title-bar-text h-4 overflow-hidden">{t("title") + " " + client}</div>
                 <div class="title-bar-controls">
                     <button aria-label="Minimize"></button>
                     <button aria-label="Maximize"></button>

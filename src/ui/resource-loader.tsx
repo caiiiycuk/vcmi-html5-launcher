@@ -1,19 +1,17 @@
 import { useEffect, useState } from "preact/hooks";
 import { loadResource } from "../util/resource";
-import { dataVersion, State, uiSlice, dataUrl, wasmUrl, localizedDataUrl } from "../util/store";
+import { dataVersion, State, uiSlice, dataUrl, localizedDataUrl, getClient } from "../util/store";
 import { useDispatch, useSelector } from "react-redux";
 import { wasmInstantiate } from "../util/wasm";
 import { useT } from "../i18n";
 import { getDataDB } from "../util/db";
 import { normalizeDataFileName, VCMI_DATA, VCMI_MODULE } from "../util/module";
+import { ClientSelect } from "./reusable";
 
 export function Loader(props: {
     resourceType: "datafile" | "wasm",
 }) {
-    let homm3DataUrl = useSelector((state: State) => state.ui.homm3DataUrl);
-    if (homm3DataUrl.length > 0 && homm3DataUrl[homm3DataUrl.length - 1] !== "/") {
-        homm3DataUrl += "/";
-    }
+    const wasmUrl = getClient(useSelector((state: State) => state.ui.client)).wasmUrl;
     const lang = useSelector((state: State) => state.ui.lang);
     const [file, setFile] = useState<string>("");
     const [progress, setProgress] = useState<number>(0);
@@ -95,24 +93,6 @@ export function Loader(props: {
                             throw new Error("File " + next + " not found in uploads!");
                         }
                     }
-                } else {
-                    let index = 0;
-                    for (const next of Object.keys(VCMI_DATA)) {
-                        index += 1;
-                        setFile("HOMM3/" + next + " (" + index + "/" + Object.keys(VCMI_DATA).length + ")");
-                        if (VCMI_DATA[next] === null) {
-                            try {
-                                VCMI_DATA[next] = new Uint8Array(await loadResource(
-                                    homm3DataUrl + "Data/" + next, "arraybuffer", setProgress) as any);
-                            } catch (e) {
-                                // try also lowercase
-                                console.error(e);
-                                VCMI_DATA[next] = new Uint8Array(await loadResource(
-                                    homm3DataUrl + "Data/" + next.toLowerCase(), "arraybuffer", setProgress) as any);
-                            }
-                            db.put(next, VCMI_DATA[next]).catch(console.error);
-                        }
-                    }
                 }
 
                 const Module = VCMI_MODULE;
@@ -163,28 +143,31 @@ export function Loader(props: {
             setError(e.message ?? "unknown error");
             console.error(e);
         });
-    }, [homm3DataUrl, props.resourceType, lang]);
+    }, [props.resourceType, lang]);
 
     return <div class="flex flex-col">
-        <article class="pt-0" role="tabpanel">
+        {!error && <article class="pt-0" role="tabpanel">
             <h4 class="my-4">{t("loading_data_title")}</h4>
             <div class="flex flex-row">
                 <progress class="w-full mr-2" max="100" value={progress}></progress>
                 <span>{progress}%</span>
             </div>
             <p class="text-gray-600">{file}</p>
-        </article>
+        </article>}
         {error &&
-            <div class="mx-2 font-mono">
-                <p class="my-0 text-xl">{t("error")}</p >
-                {error.indexOf("SharedArrayBuffer") !== -1 &&
-                    <p class="text-red-500 font-bold">{t("browser_is_not_supported")}</p>
-                }
-                <p class="text-red-500 font-bold">{error}</p>
-                <p class="text-gray-600">{t("open_browser_logs")}</p>
-                {props.resourceType !== "wasm" && <button onClick={() => {
-                    dispatch(uiSlice.actions.step("DATA_SELECT"));
-                }}>{t("back")}</button>}
+            <div>
+                <div class="mx-2 font-mono">
+                    <p class="my-0 text-xl">{t("error")}</p >
+                    {error.indexOf("SharedArrayBuffer") !== -1 &&
+                        <p class="text-red-500 font-bold">{t("browser_is_not_supported")}</p>
+                    }
+                    <p class="text-red-500 font-bold">{error}</p>
+                    <p class="text-gray-600">{t("open_browser_logs")}</p>
+                    {props.resourceType !== "wasm" && <button onClick={() => {
+                        dispatch(uiSlice.actions.step("DATA_SELECT"));
+                    }}>{t("back")}</button>}
+                </div>
+                <ClientSelect />
             </div>
         }
     </div>;

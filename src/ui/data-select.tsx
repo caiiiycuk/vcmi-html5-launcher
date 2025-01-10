@@ -1,24 +1,24 @@
 import { useDispatch, useSelector } from "react-redux";
-import { State, uiSlice } from "../util/store";
+import { archiveOrgLinks, clients, State, uiSlice } from "../util/store";
 import { useT } from "../i18n";
 import { useEffect, useState } from "preact/hooks";
 import { getDataDB } from "../util/db";
 import { VCMI_DATA, VCMI_MODULE } from "../util/module";
+import { ClientSelect, LanguageSelect } from "./reusable";
 
 export function DataSelect() {
     const t = useT();
     const dispatch = useDispatch();
-    const dataUrl = useSelector((state: State) => state.ui.homm3DataUrl);
-    const [dataType, setDataType] = useState<"file" | "url" | "db">("url");
+    const [dataType, setDataType] = useState<"file" | "db" | "none">("none");
     const [hoMM3InDB, setHoMM3InDB] = useState<boolean>(false);
     const [dbReady, setDBReady] = useState<boolean>(false);
-    const [zipUrl, setZipUrl] = useState<boolean>(false);
     const [shortLegal, setShortLegal] = useState<boolean>(true);
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     const inputOptions = isMobile ?
         { multiple: true } :
         { webkitdirectory: true, directory: true };
-
+    const [dataSelected, setDataSelected] = useState(false);
+    const language = useSelector((state: State) => state.ui.lang);
     useEffect(() => {
         const onend = () => {
             setDBReady(true);
@@ -33,6 +33,8 @@ export function DataSelect() {
             if (hoMM3InDB) {
                 setHoMM3InDB(hoMM3InDB);
                 setDataType("db");
+            } else {
+                setDataType("file");
             }
         };
 
@@ -86,71 +88,56 @@ export function DataSelect() {
                 </a>
             }
         </article>
-        {zipUrl && <fieldset>
-            <legend>{t("instructions")}</legend>
-            <div>
-                {t("i1_download_zip")}
-            </div>
-            <div class="ml-4 my-3">
-                <a class="text-lg underline cursor-pointer" href={dataUrl} target="_blank"
-                    rel="noopener noreferrer">{t("i1_download_button")}</a>
-            </div>
-            <div class="my-3 font-bold">
-                {t("i2_extract_zip_to_folder")}
-            </div>
-            <div class="my-3">
-                {t("i3_select_folder")}
-            </div>
-            <div class="field-row">
-                <input class="ml-4" id="data-file" type="file" name="data-file"
-                    {...inputOptions}
-                    onChange={(e) => {
-                        if (e.currentTarget.files !== null) {
-                            setDataType("file");
-                            VCMI_MODULE.homm3Files = e.currentTarget.files;
-                        }
-                    }} />
-            </div>
-        </fieldset>}
-        {!zipUrl && <fieldset>
+        {!dataSelected && <ClientSelect />}
+        {!dataSelected && <fieldset>
             <legend>{t("data_source")}</legend>
-            <div class="field-row">
-                <input disabled={!dbReady} checked={dataType === "file"}
-                    onChange={() => setDataType("file")}
-                    id="data-directory" type="radio" name="data-source" />
-                <label for="data-directory">{t("data_directory")}</label>
-            </div>
-            <div class="field-row">
-                <input class="ml-4" id="data-file" type="file" name="data-file"
-                    {...inputOptions}
-                    onChange={(e) => {
-                        if (e.currentTarget.files !== null) {
-                            setDataType("file");
-                            VCMI_MODULE.homm3Files = e.currentTarget.files;
-                        }
-                    }} />
-            </div>
-            <div class="field-row">
-                <input disabled={!dbReady || dataUrl.length === 0} checked={dataType === "url"}
-                    onChange={() => setDataType("url")}
-                    id="data-url" type="radio" name="data-source" />
-                <label for="data-url">URL</label>
-            </div>
-            <div class="field-row">
-                <input class="ml-4 w-full" id="data-url" type="text"
-                    onChange={(e) => {
-                        setDataType("url");
-                        dispatch(uiSlice.actions.setDataUrl(e.currentTarget.value ?? ""));
-                    }}
-                    value={dataUrl}
-                    placeholder={t("enter_url")}
-                />
-            </div>
-            <div class="field-row">
+            <div class="field-row mb-4">
                 <input disabled={!hoMM3InDB} checked={dataType === "db"} onChange={() => setDataType("db")}
                     id="data-db" type="radio" name="data-source" />
                 <label for="data-db">{t("data_db")}</label>
             </div>
+            <div class="field-row">
+                <input disabled={!dbReady} checked={dataType === "file"} onChange={() => setDataType("file")}
+                    id="data-provider" type="radio" name="data-provider" />
+                <label for="data-provider">{t("data_provider")}</label>
+            </div>
+            {dataType === "file" &&
+                <div class="ml-6 mt-4 flex flex-row gap-2 flex-wrap">
+                    <button class="archive-link" onClick={() => {
+                        // window.open(archiveOrgLinks[language].complete, "_blank");
+                        setDataSelected(true);
+                    }}>
+                        <div class="complete-edition-link"></div>
+                    </button>
+                    <button class="archive-link link-disabled" onClick={() => { }}>
+                        <div class="hota-link"></div>
+                    </button>
+                    <button class="archive-link link-disabled" onClick={() => { }}>
+                        <div class="wog-link"></div>
+                    </button>
+                    <button class="archive-link link-disabled" onClick={() => { }}>
+                        <div class="chronicles-link"></div>
+                    </button>
+                </div>}
+        </fieldset>}
+        {dataSelected && <fieldset>
+            <div class="field-row">
+                <input disabled={!dbReady} checked={dataType === "file"}
+                    onChange={() => setDataType("file")}
+                    id="data-directory" type="radio" name="data-source" />
+                <label for="data-directory">{t("data_archive")}</label>
+            </div>
+            <div class="field-row">
+                <input class="ml-4" id="data-file" type="file" name="data-file"
+                    {...inputOptions}
+                    onChange={(e) => {
+                        if (e.currentTarget.files !== null) {
+                            setDataType("file");
+                            VCMI_MODULE.homm3Files = e.currentTarget.files;
+                        }
+                    }} />
+            </div>
+            <div class="mt-4 ml-4 font-bold">{t("data_archive_text")}</div>
         </fieldset>}
         {dbReady &&
             <div class="flex flex-row gap-1">
@@ -169,26 +156,25 @@ export function DataSelect() {
                 <div class="flex-grow"></div>
                 <button class="self-end"
                     onClick={() => {
-                        if (dataType !== "db") {
+                        if (dataType === "db") {
+                            delete VCMI_MODULE.homm3Files;
+                            dispatch(uiSlice.actions.step("READY_TO_RUN"));
+                        } else {
                             for (const next of Object.keys(VCMI_DATA)) {
                                 VCMI_DATA[next] = null;
                             }
-                        }
-                        if (dataType !== "file") {
-                            delete VCMI_MODULE.homm3Files;
-                        }
-                        if (dataType === "url" && dataUrl.toLowerCase().endsWith(".zip")) {
-                            setZipUrl(true);
-                        } else {
                             dispatch(uiSlice.actions.step("LOADING_DATA"));
                         }
                     }}
-                    disabled={dataUrl.length === 0 && dataType === "url"}
+                    disabled={!dataSelected && dataType !== "db"}
                 >
                     {t("next")}
                 </button>
-            </div>}
-        {!dbReady &&
-            <p class="self-end font-bold my-1 text-gray-400">{t("loading_db")}</p>}
-    </div>;
+            </div>
+        }
+        {
+            !dbReady &&
+            <p class="self-end font-bold my-1 text-gray-400">{t("loading_db")}</p>
+        }
+    </div >;
 }

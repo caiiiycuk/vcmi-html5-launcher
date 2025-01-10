@@ -3,12 +3,30 @@ import { resetModule } from "./module";
 import { getFilesDB } from "./db";
 
 export const dataVersion = "1.5.7-wasm";
-export const version = "1.5.7-wasm-6";
-export const wasmUrl = "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmiclient.js";
 export const dataUrl = "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.data.js";
 export const localizedDataUrl = {
     "en": "https://caiiiycuk.github.io/vcmi-wasm/vcmi/en.data.js",
     "ru": "https://caiiiycuk.github.io/vcmi-wasm/vcmi/ru.data.js",
+};
+
+export const clients = [
+    {
+        version: "1.5.7-wasm-6",
+        wasmUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmiclient.js",
+    },
+    {
+        version: "bundled (dev)",
+        wasmUrl: "vcmi/vcmiclient.js",
+    },
+];
+
+export const archiveOrgLinks = {
+    "en": {
+        "complete": "https://archive.org/download/data_20241222/Data.zip",
+    },
+    "ru": {
+        "complete": "https://archive.org/download/homm3ruslang/Data.zip",
+    },
 };
 
 const maxSize = 1440;
@@ -17,16 +35,14 @@ const params = new URLSearchParams(location.search);
 
 const initialUiState: {
     lang: "ru" | "en",
-    homm3DataUrl: string,
-    step: "DATA_SELECT" | "LOADING_DATA" | "LOADING_WASM" | "READY_TO_RUN" | "STARTED" | "ABOUT",
+    step: "MODULE_SELECT" | "DATA_SELECT" | "LOADING_DATA" | "READY_TO_RUN" | "STARTED" | "ABOUT",
     config: string,
-    version: string,
+    client: string,
 } = {
-    lang: (params.get("lang") ?? navigator.language).startsWith("ru") ? "ru" : "en",
-    homm3DataUrl: params.get("url") ?? localStorage.getItem("vcmi.dataUrl") ?? "",
-    step: "LOADING_WASM", // "DATA_SELECT",
+    lang: (localStorage.getItem("vcmi.lang") ?? navigator.language).startsWith("ru") ? "ru" : "en",
+    step: "MODULE_SELECT",
     config: localStorage.getItem("vcmi.config") ?? defaultConfig(),
-    version,
+    client: localStorage.getItem("vcmi.client") ?? "1.5.7-wasm-6",
 };
 
 export const uiSlice = createSlice({
@@ -40,13 +56,18 @@ export const uiSlice = createSlice({
                 resetModule();
             }
         },
-        setDataUrl: (state, a: { payload: string }) => {
-            state.homm3DataUrl = a.payload;
-            localStorage.setItem("vcmi.dataUrl", a.payload);
-        },
         setConfig: (state, a: { payload: string }) => {
             state.config = a.payload;
             localStorage.setItem("vcmi.config", a.payload);
+        },
+        setClient: (state, a: { payload: string }) => {
+            state.client = a.payload;
+            localStorage.setItem("vcmi.client", a.payload);
+            location.reload();
+        },
+        setLang: (state, a: { payload: "ru" | "en" }) => {
+            state.lang = a.payload;
+            localStorage.setItem("vcmi.lang", a.payload);
         },
     },
 });
@@ -118,4 +139,8 @@ export function getScreenResolution() {
     }
 
     return [width, height];
+}
+
+export function getClient(version: string) {
+    return clients.find((client) => client.version === version) ?? clients[0];
 }
