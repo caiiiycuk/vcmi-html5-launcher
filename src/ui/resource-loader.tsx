@@ -47,6 +47,7 @@ export function Loader(props: {
                     }
                     await variant.clear();
 
+                    entries.sort((a, b) => b.uncompressedSize - a.uncompressedSize);
                     for (const next of entries) {
                         if (!next.directory && next.getData && !next.filename.startsWith("__MACOSX")) {
                             setFile(t("unpacking") + " " + next.filename);
@@ -57,8 +58,8 @@ export function Loader(props: {
                                     return undefined;
                                 },
                             });
-                            await variant.put(next.filename, data);
                             VCMI_MODULE.variantFiles[next.filename] = data;
+                            await variant.put(next.filename, data);
                         }
                     }
 
