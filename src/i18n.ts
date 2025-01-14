@@ -2,7 +2,6 @@
 
 import { useSelector } from "react-redux";
 import { State } from "./util/store";
-import { version } from "preact/compat";
 
 
 const translations: {[lang: string]: {[key: string]: string} } = {
@@ -28,7 +27,7 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         reset: "Сбросить конфигурацию",
         enter_url: "Введите адрес...",
         download_saves: "Скачать сохранения",
-        upload_saves: "Загрузить сохранение",
+        upload_dlc: "Установить DLC (ZIP)",
         archive_link: "Ссылка на архив",
         instructions: "Инструкции",
         i1_download_zip: "1. Скачайте архив с файлами игры",
@@ -45,8 +44,14 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         browser_is_not_supported: "Браузер не поддерживается. Пожалуйста, используйте Chrome, Firefox, Edge или Safari",
         client: "Клиент",
         version: "Версия",
-        data_provider: "Archive.org",
+        data_provider: "Архив с файлами игры",
         language: "Язык",
+        variant_is_not_supported: "Архив не поддерживается (не все файлы присутствуют)",
+        not_an_archive: "Не архив",
+        unpacking: "Распаковка",
+        scanning: "Сканирование",
+        loading: "Загрузка",
+        dlc_error: "Ошибка загрузки DLC",
     },
     en: {
         title: "Heroes Of Might And Magic III",
@@ -70,7 +75,7 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         reset: "Reset config",
         enter_url: "Enter url...",
         download_saves: "Download saves",
-        upload_saves: "Upload save",
+        upload_dlc: "Install DLC (ZIP)",
         archive_link: "Link to game archive",
         instructions: "Instructions",
         i1_download_zip: "1. Download zip archive with game files",
@@ -87,8 +92,13 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         browser_is_not_supported: "Browser is not supported. Please use Chrome, Firefox, Edge or Safari",
         client: "Client",
         version: "Version",
-        data_provider: "Archive.org",
+        data_provider: "Archive with HoMM3 files",
         language: "Language",
+        variant_is_not_supported: "Archive is not supported (not all files are present)",
+        not_an_archive: "Not an archive",
+        unpacking: "Unpacking",
+        scanning: "Scanning",
+        loading: "Loading",
     },
 };
 

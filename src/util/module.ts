@@ -1,23 +1,20 @@
 import { getFilesDB } from "./db";
 import { loadResource } from "./resource";
 
-export const VCMI_DATA: { [file: string]: Uint8Array | null } = {
-    "H3ab_ahd.snd": null,
-    "H3ab_bmp.lod": null,
-    "H3ab_spr.lod": null,
-    "H3bitmap.lod": null,
-    "H3sprite.lod": null,
-    "Heroes3.snd": null,
+export const DATA_SET: { [variant: string]: string[] } = {
+    "complete_edition": [
+        "data/h3ab_ahd.snd",
+        "data/h3ab_bmp.lod",
+        "data/h3ab_spr.lod",
+        "data/h3bitmap.lod",
+        "data/h3sprite.lod",
+        "data/heroes3.snd",
+    ],
 };
 
-export function normalizeDataFileName(name: string) {
-    const lower = name.toLowerCase();
-    return lower.charAt(0).toUpperCase() + lower.slice(1);
-}
-
-
 export const VCMI_MODULE: {
-    homm3Files?: FileList,
+    variantZip?: File,
+    variantFiles: { [key: string]: Uint8Array },
     canvas?: HTMLCanvasElement,
     FS?: {
         createPath: (parent: string, dir: string) => void,
@@ -49,6 +46,7 @@ export const VCMI_MODULE: {
 export function resetModule() {
     const loadedMusic: {[file: string]: boolean} = {};
     const module: typeof VCMI_MODULE = {
+        variantFiles: {},
         fsRead: (path) => {
             return module.FS!.readFile(path);
         },
@@ -103,3 +101,22 @@ export function resetModule() {
     (window as any).VCMI_MODULE = module;
     return module;
 }
+
+export function isDataSet(keys: string[]) {
+    keys = keys.map((key) => key.toLowerCase());
+    function haveAll(contents: string[]) {
+        for (const key of contents) {
+            if (keys.indexOf(key) === -1) {
+                return false;
+            }
+        }
+        return true;
+    }
+    for (const variant of Object.keys(DATA_SET)) {
+        if (haveAll(DATA_SET[variant])) {
+            return true;
+        }
+    }
+    return false;
+}
+

@@ -11,16 +11,16 @@ export const localizedDataUrl = {
 
 export const clients = [
     {
-        version: "1.5.7-wasm-6",
+        version: "1.5.7-wasm-7",
         wasmUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmiclient.js",
     },
-    {
-        version: "bundled (dev)",
-        wasmUrl: "vcmi/vcmiclient.js",
-    },
+    // {
+    //     version: "bundled (dev)",
+    //     wasmUrl: "vcmi/vcmiclient.js",
+    // },
 ];
 
-export const archiveOrgLinks = {
+export const variantsUrls = {
     "en": {
         "complete": "https://archive.org/download/data_20241222/Data.zip",
     },
@@ -39,7 +39,8 @@ const initialUiState: {
     config: string,
     client: string,
 } = {
-    lang: (localStorage.getItem("vcmi.lang") ?? navigator.language).startsWith("ru") ? "ru" : "en",
+    lang: (params.get("lang") ?? localStorage.getItem("vcmi.lang") ??
+        navigator.language).startsWith("ru") ? "ru" : "en",
     step: "MODULE_SELECT",
     config: localStorage.getItem("vcmi.config") ?? defaultConfig(),
     client: localStorage.getItem("vcmi.client") ?? "1.5.7-wasm-6",

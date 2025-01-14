@@ -2,6 +2,8 @@ export interface DB {
     put: (key: string, data: Uint8Array) => Promise<void>;
     get: (key: string) => Promise<Uint8Array | null>;
     keys: () => Promise<string[]>;
+    delete: (key: string) => Promise<void>;
+    clear: () => Promise<void>;
     forEach: (each: (key: string, value: Uint8Array) => void) => Promise<void>;
     close: () => void;
 }
@@ -16,6 +18,14 @@ export class DBNoop implements DB {
 
     public get(key: string): Promise<Uint8Array | null> {
         return Promise.resolve(null);
+    }
+
+    public delete(key: string): Promise<void> {
+        return Promise.resolve();
+    }
+
+    public clear(): Promise<void> {
+        return Promise.resolve();
     }
 
     public keys(): Promise<string[]> {
@@ -120,6 +130,27 @@ class IndexedDB implements DB {
         });
     }
 
+    public delete(key: string): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            if (this.db === null) {
+                reject(new Error("db is not initalized"));
+                return;
+            }
+
+            const transaction = this.db.transaction(this.storeName, "readwrite");
+            const request = transaction.objectStore(this.storeName).delete(key);
+            request.onerror = () => reject(new Error("Can't delete value for key '" + key + "'"));
+            request.onsuccess = () => resolve();
+        });
+    }
+
+    public async clear(): Promise<void> {
+        const keys = await this.keys();
+        for (const key of keys) {
+            await this.delete(key);
+        }
+    }
+
     public keys(): Promise<string[]> {
         return new Promise<string[]>((resolve, reject) => {
             if (this.db === null) {
@@ -160,6 +191,15 @@ class IndexedDB implements DB {
     }
 }
 
+const variantDBPromise: Promise<DB> = (() => {
+    return new Promise((resolve) => {
+        new IndexedDB("vcmi-variant", resolve, (msg: string) => {
+            console.error("Can't open IndexedDB cache", msg);
+            resolve(new DBNoop());
+        });
+    });
+})();
+
 const dataDBPromise: Promise<DB> = (() => {
     return new Promise((resolve) => {
         new IndexedDB("vcmi-data", resolve, (msg: string) => {
@@ -178,6 +218,7 @@ const filesDBPromise: Promise<DB> = (() => {
     });
 })();
 
+export const getVariantDB = () => variantDBPromise;
 export const getDataDB = () => dataDBPromise;
 export const getFilesDB = () => filesDBPromise;
 

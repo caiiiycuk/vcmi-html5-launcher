@@ -3,7 +3,7 @@ import { defaultConfig, getScreenResolution, State, uiSlice } from "../util/stor
 import { useT } from "../i18n";
 import { useEffect, useState } from "preact/hooks";
 import { getFilesDB } from "../util/db";
-import { BlobWriter, Uint8ArrayReader, ZipWriter } from "@zip.js/zip.js";
+import { BlobReader, BlobWriter, Uint8ArrayReader, Uint8ArrayWriter, ZipReader, ZipWriter } from "@zip.js/zip.js";
 
 const resolutions = [
     [0, 0], [800, 600], [1024, 768], [1280, 720], [1280, 1024], [1440, 900],
@@ -17,6 +17,9 @@ export function VCMIConfig() {
     const config = useSelector((state: State) => state.ui.config);
     const [index, setIndex] = useState<number>(0);
     const [downloadLink, setDownloadLink] = useState<string | null>(null);
+    const [dlcLoading, setDlcLoading] = useState<boolean>(false);
+    const [dlcError, setDlcError] = useState<string | null>(null);
+    const [dlcFile, setDlcFile] = useState<string>("");
 
     function resetConfig() {
         setIndex(0);
@@ -24,6 +27,7 @@ export function VCMIConfig() {
 
         getFilesDB()
             .then((db) => {
+                db.clear().catch(() => {});
                 return db.put("/home/web_user/.config/vcmi/settings.json", new Uint8Array(0));
             })
             .catch(console.error);
@@ -93,22 +97,44 @@ export function VCMIConfig() {
                 setDownloadLink(URL.createObjectURL(await writer.close()));
             }}>{t("download_saves")}</button>
             }
-            <button onClick={() => {
-                document.getElementById("upload-file")?.click();
-            }}>{t("upload_saves")}</button>
+            <button class={dlcLoading ? "opacity-50 pointer-events-none" : ""} onClick={() => {
+                if (!dlcLoading) {
+                    document.getElementById("upload-file")?.click();
+                }
+            }}>{t("upload_dlc")}</button>
             <input type="file" id="upload-file" class="hidden" onChange={async (e) => {
                 const files = e.currentTarget.files;
                 if (files !== null && files.length > 0) {
-                    const file = files[0];
-                    if (file.name.endsWith("vsgm1")) {
+                    try {
+                        setDlcError(null);
+                        setDlcLoading(true);
+                        setDlcFile(files[0].name);
+                        const reader = new ZipReader(new BlobReader(files[0]));
                         const db = await getFilesDB();
-                        await db.put("/home/web_user/.local/share/vcmi/Saves/" + file.name,
-                            new Uint8Array(await file.arrayBuffer()));
-                        alert("Ok");
+                        for await (const next of reader.getEntriesGenerator()) {
+                            if (!next.directory && next.getData) {
+                                setDlcFile(next.filename);
+                                const data = await next.getData(new Uint8ArrayWriter());
+                                await db.put(next.filename[0] === "/" ?
+                                    next.filename : "/" + next.filename, data);
+                            }
+                        }
+                    } catch (e: any) {
+                        setDlcError(e.message ?? "unknown error");
+                    } finally {
+                        setDlcLoading(false);
                     }
                 }
             }}></input>
         </div>
+
+        {dlcLoading && <div>
+            <div>{t("loading")}: {dlcFile}</div>
+        </div>}
+
+        {dlcError && <div class="text-red-500 font-bold">
+            {t("error")}: {dlcError}
+        </div>}
 
         <div class="field-row-stacked w-full">
             <label for="config-text">{t("config")}</label>
@@ -116,12 +142,12 @@ export function VCMIConfig() {
                 onChange={(e) => dispatch(uiSlice.actions.setConfig(e.currentTarget.value))}></textarea>
         </div>
 
-        <div class="flex flex-row justify-end">
-
-            <button onClick={() => {
-                dispatch(uiSlice.actions.step("STARTED"));
-            }}>{t("start_the_game")}</button>
-        </div>
+        {!dlcLoading &&
+            <div class="flex flex-row justify-end">
+                <button onClick={() => {
+                    dispatch(uiSlice.actions.step("STARTED"));
+                }}>{t("start_the_game")}</button>
+            </div>}
     </div>;
 }
 

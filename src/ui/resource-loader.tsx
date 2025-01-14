@@ -4,9 +4,10 @@ import { dataVersion, State, uiSlice, dataUrl, localizedDataUrl, getClient } fro
 import { useDispatch, useSelector } from "react-redux";
 import { wasmInstantiate } from "../util/wasm";
 import { useT } from "../i18n";
-import { getDataDB } from "../util/db";
-import { normalizeDataFileName, VCMI_DATA, VCMI_MODULE } from "../util/module";
+import { getDataDB, getVariantDB } from "../util/db";
+import { isDataSet, VCMI_MODULE } from "../util/module";
 import { ClientSelect } from "./reusable";
+import { BlobReader, Entry, Uint8ArrayWriter, ZipReader } from "@zip.js/zip.js";
 
 export function Loader(props: {
     resourceType: "datafile" | "wasm",
@@ -22,8 +23,57 @@ export function Loader(props: {
         setError(null);
         (async () => {
             if (props.resourceType === "datafile") {
+                const variant = await getVariantDB();
                 const db = await getDataDB();
 
+                // load variant
+                if (VCMI_MODULE.variantZip) {
+                    setFile(t("scanning") + " " + VCMI_MODULE.variantZip.name);
+                    const reader = new ZipReader(new BlobReader(VCMI_MODULE.variantZip));
+                    const entries: Entry[] = [];
+                    const files: string[] = [];
+                    try {
+                        for await (const next of reader.getEntriesGenerator()) {
+                            if (!next.directory) {
+                                entries.push(next);
+                                files.push(next.filename);
+                            }
+                        }
+                    } catch (e) {
+                        throw new Error(t("not_an_archive"));
+                    }
+                    if (!isDataSet(files)) {
+                        throw new Error(t("variant_is_not_supported"));
+                    }
+                    await variant.clear();
+
+                    for (const next of entries) {
+                        if (!next.directory && next.getData) {
+                            setFile(t("unpacking") + " " + next.filename);
+                            setProgress(0);
+                            const data = await next.getData(new Uint8ArrayWriter(), {
+                                onprogress: (progress, total) => {
+                                    setProgress(Math.round(progress / total * 100));
+                                    return undefined;
+                                },
+                            });
+                            await variant.put(next.filename, data);
+                            VCMI_MODULE.variantFiles[next.filename] = data;
+                        }
+                    }
+
+                    delete VCMI_MODULE.variantZip;
+                } else {
+                    await variant.forEach((key, value) => {
+                        VCMI_MODULE.variantFiles[key] = value;
+                    });
+                }
+
+                if (!isDataSet(Object.keys(VCMI_MODULE.variantFiles))) {
+                    throw new Error(t("variant_is_not_supported"));
+                }
+
+                // load data
                 const loadDataFile = async (dataUrl: string, dataKeyPrefix: string) => {
                     const dataContentsUrl = dataUrl.substring(0, dataUrl.length - 3);
                     const dataKey = dataKeyPrefix + ".data.js";
@@ -69,31 +119,6 @@ export function Loader(props: {
                     }
                     return data;
                 };
-
-                // load homm3 data
-                const homm3Files: FileList | undefined = VCMI_MODULE.homm3Files;
-                if (homm3Files) {
-                    delete VCMI_MODULE.homm3Files;
-                    setFile("Searching in " + homm3Files.length + " files");
-                    let processed = 0;
-                    for (const next of homm3Files) {
-                        const name = normalizeDataFileName(next.name);
-                        if (VCMI_DATA[name] === null) {
-                            setFile("Uploading " + name);
-                            VCMI_DATA[name] = new Uint8Array(await next.arrayBuffer());
-                            db.put(name, VCMI_DATA[name]!).catch(console.error);
-                        }
-                        processed++;
-                        setProgress(Math.round(processed / homm3Files.length));
-                    }
-                    setFile("Validating...");
-                    setProgress(100);
-                    for (const next of Object.keys(VCMI_DATA)) {
-                        if (VCMI_DATA[next] === null) {
-                            throw new Error("File " + next + " not found in uploads!");
-                        }
-                    }
-                }
 
                 const Module = VCMI_MODULE;
                 eval(Module.data![0]);
@@ -156,7 +181,7 @@ export function Loader(props: {
         </article>}
         {error &&
             <div>
-                <div class="mx-2 font-mono">
+                <div class="mx-2 font-mono mb-4">
                     <p class="my-0 text-xl">{t("error")}</p >
                     {error.indexOf("SharedArrayBuffer") !== -1 &&
                         <p class="text-red-500 font-bold">{t("browser_is_not_supported")}</p>

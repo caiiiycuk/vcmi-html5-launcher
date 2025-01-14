@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "preact/hooks";
 import { State } from "../util/store";
 import { useSelector } from "react-redux";
-import { VCMI_DATA, VCMI_MODULE } from "../util/module";
+import { VCMI_MODULE } from "../util/module";
 import { getFilesDB } from "../util/db";
 import { parseResolution } from "./vcmi-config";
 
@@ -35,11 +35,9 @@ export function VCMIWindow() {
 
             (async () => {
                 VCMI_MODULE.canvas = canvas;
-                for (const next of Object.keys(VCMI_DATA)) {
-                    if (VCMI_DATA[next] !== null) {
-                        VCMI_MODULE.fsWrite("/Data/" + next, VCMI_DATA[next]);
-                        VCMI_DATA[next] = null;
-                    }
+                for (const next of Object.keys(VCMI_MODULE.variantFiles)) {
+                    VCMI_MODULE.fsWrite(next, VCMI_MODULE.variantFiles[next]);
+                    delete VCMI_MODULE.variantFiles[next];
                 }
 
                 let makeModSettings = true;

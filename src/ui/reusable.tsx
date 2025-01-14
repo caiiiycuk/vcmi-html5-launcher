@@ -7,7 +7,6 @@ export function ClientSelect() {
     const t = useT();
     const client = useSelector((state: State) => state.ui.client);
     const dispatch = useDispatch();
-    const language = useSelector((state: State) => state.ui.lang);
 
     return <fieldset>
         <legend>{t("client")}</legend>
@@ -27,7 +26,9 @@ export function ClientSelect() {
                 dispatch(uiSlice.actions.setLang(e.currentTarget.value as "ru" | "en"));
             }}>
                 {["ru", "en"].map((lang) => {
-                    return <option value={lang} selected={lang === language} >{lang === "ru" ? "Русский" : "English"}</option>;
+                    return <option value={lang} selected={lang === lang}>
+                        {lang === "ru" ? "Русский" : "English"}
+                    </option>;
                 })}
             </select>
         </div>
@@ -36,7 +37,6 @@ export function ClientSelect() {
 
 export function LanguageSelect() {
     const t = useT();
-    const dispatch = useDispatch();
 
     return <fieldset>
         <legend>{t("language")}</legend>

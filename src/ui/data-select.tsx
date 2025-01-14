@@ -1,59 +1,39 @@
 import { useDispatch, useSelector } from "react-redux";
-import { archiveOrgLinks, clients, State, uiSlice } from "../util/store";
+import { variantsUrls, State, uiSlice } from "../util/store";
 import { useT } from "../i18n";
 import { useEffect, useState } from "preact/hooks";
-import { getDataDB } from "../util/db";
-import { VCMI_DATA, VCMI_MODULE } from "../util/module";
-import { ClientSelect, LanguageSelect } from "./reusable";
+import { getVariantDB } from "../util/db";
+import { isDataSet, VCMI_MODULE } from "../util/module";
+import { ClientSelect } from "./reusable";
 
 export function DataSelect() {
     const t = useT();
     const dispatch = useDispatch();
     const [dataType, setDataType] = useState<"file" | "db" | "none">("none");
-    const [hoMM3InDB, setHoMM3InDB] = useState<boolean>(false);
+    const [variantInDb, setVariantInDB] = useState<boolean>(false);
     const [dbReady, setDBReady] = useState<boolean>(false);
     const [shortLegal, setShortLegal] = useState<boolean>(true);
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    const inputOptions = isMobile ?
-        { multiple: true } :
-        { webkitdirectory: true, directory: true };
     const [dataSelected, setDataSelected] = useState(false);
-    const language = useSelector((state: State) => state.ui.lang);
+    const lang = useSelector((state: State) => state.ui.lang);
+
     useEffect(() => {
-        const onend = () => {
-            setDBReady(true);
-            let hoMM3InDB = true;
-            for (const next of Object.keys(VCMI_DATA)) {
-                if (VCMI_DATA[next] === null) {
-                    hoMM3InDB = false;
-                    break;
-                }
-            }
-
-            if (hoMM3InDB) {
-                setHoMM3InDB(hoMM3InDB);
-                setDataType("db");
-            } else {
-                setDataType("file");
-            }
-        };
-
         (async () => {
             try {
-                const db = await getDataDB();
-                await db.forEach((key, value) => {
-                    if (VCMI_DATA[key] !== undefined) {
-                        VCMI_DATA[key] = value;
-                    }
-                });
+                const db = await getVariantDB();
+                if (isDataSet(await db.keys())) {
+                    setVariantInDB(true);
+                    setDataType("db");
+                } else {
+                    setVariantInDB(false);
+                    setDataType("file");
+                }
             } catch (e) {
                 console.error(e);
             } finally {
-                onend();
+                setDBReady(true);
             }
         })().catch((e) => {
             console.error(e);
-            onend();
         });
     }, []);
 
@@ -92,7 +72,7 @@ export function DataSelect() {
         {!dataSelected && <fieldset>
             <legend>{t("data_source")}</legend>
             <div class="field-row mb-4">
-                <input disabled={!hoMM3InDB} checked={dataType === "db"} onChange={() => setDataType("db")}
+                <input disabled={!variantInDb} checked={dataType === "db"} onChange={() => setDataType("db")}
                     id="data-db" type="radio" name="data-source" />
                 <label for="data-db">{t("data_db")}</label>
             </div>
@@ -104,7 +84,7 @@ export function DataSelect() {
             {dataType === "file" &&
                 <div class="ml-6 mt-4 flex flex-row gap-2 flex-wrap">
                     <button class="archive-link" onClick={() => {
-                        // window.open(archiveOrgLinks[language].complete, "_blank");
+                        window.open(variantsUrls[lang].complete, "_blank");
                         setDataSelected(true);
                     }}>
                         <div class="complete-edition-link"></div>
@@ -118,6 +98,15 @@ export function DataSelect() {
                     <button class="archive-link link-disabled" onClick={() => { }}>
                         <div class="chronicles-link"></div>
                     </button>
+                    <button class="archive-link text-yellow-600" onClick={() => setDataSelected(true)}>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-12">
+                            <path d="M19.906 9c.382 0 .749.057 1.094.162V9a3 3 0 0 0-3-3h-3.879a.75.75 0 0
+                                1-.53-.22L11.47 3.66A2.25 2.25 0 0 0 9.879 3H6a3 3 0 0 0-3 3v3.162A3.756 3.756 0 0 1
+                                4.094 9h15.812ZM4.094 10.5a2.25 2.25 0 0 0-2.227 2.568l.857 6A2.25 2.25 0 0 0 4.951
+                                21H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-2.227-2.568H4.094Z" />
+                        </svg>
+
+                    </button>
                 </div>}
         </fieldset>}
         {dataSelected && <fieldset>
@@ -129,11 +118,10 @@ export function DataSelect() {
             </div>
             <div class="field-row">
                 <input class="ml-4" id="data-file" type="file" name="data-file"
-                    {...inputOptions}
                     onChange={(e) => {
-                        if (e.currentTarget.files !== null) {
+                        if (e.currentTarget.files !== null && e.currentTarget.files.length > 0) {
                             setDataType("file");
-                            VCMI_MODULE.homm3Files = e.currentTarget.files;
+                            VCMI_MODULE.variantZip = e.currentTarget.files[0];
                         }
                     }} />
             </div>
@@ -157,14 +145,10 @@ export function DataSelect() {
                 <button class="self-end"
                     onClick={() => {
                         if (dataType === "db") {
-                            delete VCMI_MODULE.homm3Files;
-                            dispatch(uiSlice.actions.step("READY_TO_RUN"));
-                        } else {
-                            for (const next of Object.keys(VCMI_DATA)) {
-                                VCMI_DATA[next] = null;
-                            }
-                            dispatch(uiSlice.actions.step("LOADING_DATA"));
+                            delete VCMI_MODULE.variantZip;
                         }
+
+                        dispatch(uiSlice.actions.step("LOADING_DATA"));
                     }}
                     disabled={!dataSelected && dataType !== "db"}
                 >
