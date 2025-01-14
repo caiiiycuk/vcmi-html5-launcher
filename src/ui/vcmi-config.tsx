@@ -112,7 +112,7 @@ export function VCMIConfig() {
                         const reader = new ZipReader(new BlobReader(files[0]));
                         const db = await getFilesDB();
                         for await (const next of reader.getEntriesGenerator()) {
-                            if (!next.directory && next.getData) {
+                            if (!next.directory && next.getData && !next.filename.startsWith("__MACOSX")) {
                                 setDlcFile(next.filename);
                                 const data = await next.getData(new Uint8ArrayWriter());
                                 await db.put(next.filename[0] === "/" ?

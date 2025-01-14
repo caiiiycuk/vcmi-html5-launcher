@@ -48,7 +48,7 @@ export function Loader(props: {
                     await variant.clear();
 
                     for (const next of entries) {
-                        if (!next.directory && next.getData) {
+                        if (!next.directory && next.getData && !next.filename.startsWith("__MACOSX")) {
                             setFile(t("unpacking") + " " + next.filename);
                             setProgress(0);
                             const data = await next.getData(new Uint8ArrayWriter(), {

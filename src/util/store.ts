@@ -11,7 +11,7 @@ export const localizedDataUrl = {
 
 export const clients = [
     {
-        version: "1.5.7-wasm-7",
+        version: "1.5.7-wasm-8",
         wasmUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmiclient.js",
     },
     // {
