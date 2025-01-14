@@ -9,6 +9,8 @@ import { isDataSet, VCMI_MODULE } from "../util/module";
 import { ClientSelect } from "./reusable";
 import { BlobReader, Entry, Uint8ArrayWriter, ZipReader } from "@zip.js/zip.js";
 
+const isIOS = /iPad|iPhone|iPod/.test(navigator.platform);
+
 export function Loader(props: {
     resourceType: "datafile" | "wasm",
 }) {
@@ -45,7 +47,9 @@ export function Loader(props: {
                     if (!isDataSet(files)) {
                         throw new Error(t("variant_is_not_supported"));
                     }
-                    await variant.clear();
+                    if (!isIOS) {
+                        await variant.clear();
+                    }
 
                     entries.sort((a, b) => b.uncompressedSize - a.uncompressedSize);
                     for (const next of entries) {
@@ -59,7 +63,15 @@ export function Loader(props: {
                                 },
                             });
                             VCMI_MODULE.variantFiles[next.filename] = data;
-                            await variant.put(next.filename, data);
+                            if (isIOS) {
+                                try {
+                                    await variant.put(next.filename, data);
+                                } catch (e) {
+                                    console.error(e);
+                                }
+                            } else {
+                                await variant.put(next.filename, data);
+                            }
                         }
                     }
 
