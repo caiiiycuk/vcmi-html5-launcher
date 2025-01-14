@@ -43,7 +43,7 @@ const initialUiState: {
         navigator.language).startsWith("ru") ? "ru" : "en",
     step: "MODULE_SELECT",
     config: localStorage.getItem("vcmi.config") ?? defaultConfig(),
-    client: localStorage.getItem("vcmi.client") ?? "1.5.7-wasm-6",
+    client: localStorage.getItem("vcmi.client") ?? clients[0].version,
 };
 
 export const uiSlice = createSlice({

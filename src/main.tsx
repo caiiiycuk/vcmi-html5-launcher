@@ -37,7 +37,6 @@ function Page() {
 function App() {
     const t = useT();
     const state = useSelector((state: State) => state.ui.step);
-    const client = useSelector((state: State) => state.ui.client);
 
     if (state === "STARTED") {
         return <VCMIWindow />;
@@ -46,7 +45,7 @@ function App() {
     return <div class="flex flex-col w-full h-full items-center md:justify-center md:mt-0 mt-2">
         <div class="window md:w-96 w-full overflow-y-auto">
             <div class="title-bar">
-                <div class="title-bar-text h-4 overflow-hidden">{t("title") + " " + client}</div>
+                <div class="title-bar-text h-4 overflow-hidden">{t("title")}</div>
                 <div class="title-bar-controls">
                     <button aria-label="Minimize"></button>
                     <button aria-label="Maximize"></button>
