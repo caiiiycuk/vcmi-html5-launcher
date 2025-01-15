@@ -27,7 +27,7 @@ export function VCMIConfig() {
 
         getFilesDB()
             .then((db) => {
-                db.clear().catch(() => {});
+                // db.clear().catch(() => {});
                 return db.put("/home/web_user/.config/vcmi/settings.json", new Uint8Array(0));
             })
             .catch(console.error);

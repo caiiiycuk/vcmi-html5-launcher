@@ -1,6 +1,6 @@
 import { useEffect, useState } from "preact/hooks";
 import { loadResource } from "../util/resource";
-import { dataVersion, State, uiSlice, dataUrl, localizedDataUrl, getClient } from "../util/store";
+import { State, uiSlice, getClient, unprefixedDataUrlPrefix, unprefixedDataUrl, unprefixedLocalizedDataUrl } from "../util/store";
 import { useDispatch, useSelector } from "react-redux";
 import { wasmInstantiate } from "../util/wasm";
 import { useT } from "../i18n";
@@ -9,16 +9,17 @@ import { isDataSet, VCMI_MODULE } from "../util/module";
 import { ClientSelect } from "./reusable";
 import { BlobReader, Entry, Uint8ArrayWriter, ZipReader } from "@zip.js/zip.js";
 
-const isIOS = /iPad|iPhone|iPod/.test(navigator.platform);
-
 export function Loader(props: {
     resourceType: "datafile" | "wasm",
 }) {
-    const wasmUrl = getClient(useSelector((state: State) => state.ui.client)).wasmUrl;
+    const client = getClient(useSelector((state: State) => state.ui.client));
     const lang = useSelector((state: State) => state.ui.lang);
     const [file, setFile] = useState<string>("");
     const [progress, setProgress] = useState<number>(0);
     const [error, setError] = useState<string | null>(null);
+    const wasmUrl = client.wasmUrl;
+    const dataUrl = client.dataUrl;
+    const localizedDataUrl = client.localizedDataUrl;
     const dispatch = useDispatch();
     const t = useT();
     useEffect(() => {
@@ -47,9 +48,7 @@ export function Loader(props: {
                     if (!isDataSet(files)) {
                         throw new Error(t("variant_is_not_supported"));
                     }
-                    if (!isIOS) {
-                        await variant.clear();
-                    }
+                    await variant.clear();
 
                     entries.sort((a, b) => b.uncompressedSize - a.uncompressedSize);
                     for (const next of entries) {
@@ -63,15 +62,7 @@ export function Loader(props: {
                                 },
                             });
                             VCMI_MODULE.variantFiles[next.filename] = data;
-                            if (isIOS) {
-                                try {
-                                    await variant.put(next.filename, data);
-                                } catch (e) {
-                                    console.error(e);
-                                }
-                            } else {
-                                await variant.put(next.filename, data);
-                            }
+                            await variant.put(next.filename, data);
                         }
                     }
 
@@ -87,10 +78,12 @@ export function Loader(props: {
                 }
 
                 // load data
-                const loadDataFile = async (dataUrl: string, dataKeyPrefix: string) => {
+                const loadDataFile = async (dataUrl: string, dataKeyPrefix?: string) => {
                     const dataContentsUrl = dataUrl.substring(0, dataUrl.length - 3);
-                    const dataKey = dataKeyPrefix + ".data.js";
-                    const dataContentsKey = dataKeyPrefix + ".data";
+                    const dataKey = (dataKeyPrefix ? dataKeyPrefix + ".data.js" : 
+                        dataUrl.substring(dataUrl.lastIndexOf("/") + 1));
+                    const dataContentsKey = (dataKeyPrefix ? dataKeyPrefix + ".data" : 
+                        dataContentsUrl.substring(dataContentsUrl.lastIndexOf("/") + 1));
                     let [data, dataContents] = await Promise.all([db.get(dataKey),
                         db.get(dataContentsKey)]);
                     let dataJs: string | null = null;
@@ -111,14 +104,16 @@ export function Loader(props: {
                 // load vcmi data
                 {
                     setFile("VCMI/Data");
-                    VCMI_MODULE.data = await loadDataFile(dataUrl, dataVersion);
+                    VCMI_MODULE.data = await loadDataFile(dataUrl, 
+                        dataUrl === unprefixedDataUrl ? unprefixedDataUrlPrefix : undefined);
                 }
 
                 // load localized data
                 {
                     const key = lang === "ru" ? "ru" : "en";
                     setFile("VCMI/" + key + "-Data");
-                    VCMI_MODULE.localizedData = await loadDataFile(localizedDataUrl[key], dataVersion + "-" + key);
+                    VCMI_MODULE.localizedData = await loadDataFile(localizedDataUrl[key], 
+                        localizedDataUrl[key] === unprefixedLocalizedDataUrl[key] ? unprefixedDataUrlPrefix + "-" + key : undefined);
                 }
 
                 VCMI_MODULE.getPreloadedPackage = (name: any, size: any) => {

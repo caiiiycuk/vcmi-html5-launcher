@@ -2,9 +2,11 @@ import { configureStore, createSlice } from "@reduxjs/toolkit";
 import { resetModule } from "./module";
 import { getFilesDB } from "./db";
 
-export const dataVersion = "1.5.7-wasm";
-export const dataUrl = "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.data.js";
-export const localizedDataUrl = {
+const params = new URLSearchParams(location.search);
+
+export const unprefixedDataUrlPrefix = "1.5.7-wasm";
+export const unprefixedDataUrl = "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.data.js";
+export const unprefixedLocalizedDataUrl = {
     "en": "https://caiiiycuk.github.io/vcmi-wasm/vcmi/en.data.js",
     "ru": "https://caiiiycuk.github.io/vcmi-wasm/vcmi/ru.data.js",
 };
@@ -13,12 +15,21 @@ export const clients = [
     {
         version: "1.5.7-wasm-10",
         wasmUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmiclient.js",
+        dataUrl: unprefixedDataUrl,
+        localizedDataUrl: unprefixedLocalizedDataUrl,
     },
-    // {
-    //     version: "bundled (dev)",
-    //     wasmUrl: "vcmi/vcmiclient.js",
-    // },
 ];
+
+(() => {
+    if (params.get("token") ===  "BlackKnight") {
+        clients.push({
+            version: "bundled (dev)",
+            wasmUrl: "vcmi/vcmiclient.js",
+            dataUrl: "vcmi/vcmi.data.js",
+            localizedDataUrl: unprefixedLocalizedDataUrl,
+        });
+    }
+})();
 
 export const variantsUrls = {
     "en": {
@@ -31,7 +42,6 @@ export const variantsUrls = {
 
 const maxSize = 1440;
 const minSize = 600;
-const params = new URLSearchParams(location.search);
 
 const initialUiState: {
     lang: "ru" | "en",
