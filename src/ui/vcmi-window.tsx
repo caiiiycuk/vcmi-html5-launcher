@@ -47,7 +47,7 @@ export function VCMIWindow() {
 
                 const files = await getFilesDB();
                 await files.forEach((file, value) => {
-                    if (file.indexOf("settings.json") >= 0 && file.indexOf("modSettings.json") >= 0) {
+                    if (file.indexOf("settings.json") >= 0 || file.indexOf("modSettings.json") >= 0) {
                         return;
                     }
                     if (value.length > 0) {
@@ -58,6 +58,9 @@ export function VCMIWindow() {
                 const encoder = new TextEncoder();
                 VCMI_MODULE.fsWrite(
                     "/config/settings.json",
+                    encoder.encode(config));
+                VCMI_MODULE.fsWrite(
+                    "/home/web_user/.config/vcmi/settings.json",
                     encoder.encode(config));
 
                 if (client.startsWith("1.5.7")) {

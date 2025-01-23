@@ -22,16 +22,16 @@ export const clients: {
     mods?: string,
 }[] = [
     {
+        version: "1.5.7-wasm-10",
+        wasmUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmiclient.js",
+        dataUrl: unprefixedDataUrl,
+        localizedDataUrl: unprefixedLocalizedDataUrl,
+    },
+    {
         version: "1.6.3-wasm-0",
         wasmUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmiclient.1.6.3-0.js",
         dataUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.data.1.6.3.js",
         mods: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.mods.data.1.6.3.js",
-        localizedDataUrl: unprefixedLocalizedDataUrl,
-    },
-    {
-        version: "1.5.7-wasm-10",
-        wasmUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmiclient.js",
-        dataUrl: unprefixedDataUrl,
         localizedDataUrl: unprefixedLocalizedDataUrl,
     },
 ];

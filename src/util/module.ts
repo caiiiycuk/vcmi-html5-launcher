@@ -84,6 +84,7 @@ export function resetModule() {
             module._playMusic!();
         },
         getVCMIVersion() {
+            (window as any).FS = module.FS;
             if (module._getVCMIVersion) {
                 return module.UTF8ToString!(module._getVCMIVersion());
             }
