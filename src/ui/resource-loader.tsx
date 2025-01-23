@@ -76,7 +76,7 @@ export function Loader(props: {
 
                 VCMI_MODULE.getPreloadedPackage = (name: any, size: any) => {
                     let data;
-                    if (name === "vcmi.data") {
+                    if (name.startsWith("vcmi.data")) {
                         data = VCMI_MODULE.data![1];
                         delete VCMI_MODULE.data;
                     } else if (name.indexOf(".mods.") !== -1) {
