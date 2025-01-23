@@ -36,38 +36,12 @@ textarea {
     background-repeat: no-repeat;
 }
 
-.archive-link {
-    @apply relative size-24 flex items-center justify-center p-1;
+.button-icon {
+    @apply relative size-10 flex items-center justify-center p-1;
     min-width: auto;
     min-height: auto;
 }
 
-.archive-link div {
-    @apply w-full h-full;
-    background-position: center;
-    background-size: contain;
-    background-repeat: no-repeat;
-}
-
-.link-disabled {
-    @apply opacity-50 pointer-events-none;
-}
-
-.complete-edition-link {
-    background-image: url("complete_edition.jpg");
-}
-
-.hota-link {
-    background-image: url("hota.jpg");
-}
-
-.wog-link {
-    background-image: url("wog.jpg");
-}
-
-.chronicles-link {
-    background-image: url("chronicles.jpg");
-}
 
 button {
     @apply cursor-pointer;

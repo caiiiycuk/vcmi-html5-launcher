@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "preact/hooks";
-import { State } from "../util/store";
+import { State, VCMI_GAME_FILES } from "../util/store";
 import { useSelector } from "react-redux";
 import { VCMI_MODULE } from "../util/module";
 import { getFilesDB } from "../util/db";
@@ -8,6 +8,7 @@ import { parseResolution } from "./vcmi-config";
 export function VCMIWindow() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const config = useSelector((state: State) => state.ui.config);
+    const client = useSelector((state: State) => state.ui.client);
 
     let [width, height] = parseResolution(config);
     if (width === null || height === null) {
@@ -35,21 +36,21 @@ export function VCMIWindow() {
 
             (async () => {
                 VCMI_MODULE.canvas = canvas;
-                for (const next of Object.keys(VCMI_MODULE.variantFiles)) {
-                    VCMI_MODULE.fsWrite(next, VCMI_MODULE.variantFiles[next]);
-                    delete VCMI_MODULE.variantFiles[next];
+                for (const next of Object.keys(VCMI_GAME_FILES)) {
+                    if (VCMI_GAME_FILES[next].contents !== null) {
+                        VCMI_MODULE.fsWrite(VCMI_GAME_FILES[next].name, VCMI_GAME_FILES[next].contents!);
+                        delete VCMI_GAME_FILES[next];
+                    } else {
+                        throw new Error("File not found: " + VCMI_GAME_FILES[next].name);
+                    }
                 }
 
-                let makeModSettings = true;
                 const files = await getFilesDB();
                 await files.forEach((file, value) => {
-                    if (file.indexOf("settings.json") >= 0) {
+                    if (file.indexOf("settings.json") >= 0 && file.indexOf("modSettings.json") >= 0) {
                         return;
                     }
                     if (value.length > 0) {
-                        if (file.indexOf("modSettings.json") >= 0) {
-                            makeModSettings = false;
-                        }
                         VCMI_MODULE.fsWrite(file, value);
                     }
                 });
@@ -59,7 +60,7 @@ export function VCMIWindow() {
                     "/config/settings.json",
                     encoder.encode(config));
 
-                if (makeModSettings) {
+                if (client.startsWith("1.5.7")) {
                     VCMI_MODULE.fsWrite(
                         "/config/modSettings.json",
                         encoder.encode(modSettings));
@@ -69,7 +70,6 @@ export function VCMIWindow() {
                     onResize();
                 };
 
-                VCMI_MODULE.run!();
                 VCMI_MODULE.callMain!(["--disable-video"]);
                 // VCMI_MODULE.callMain!(["--onlyAI", "-s", "--spectate-skip-battle"]);
                 // VCMI_MODULE.callMain!(["--onlyAI", "-s"]);

@@ -191,7 +191,7 @@ class IndexedDB implements DB {
     }
 }
 
-const variantDBPromise: Promise<DB> = (() => {
+const gameDBPromise: Promise<DB> = (() => {
     return new Promise((resolve) => {
         new IndexedDB("vcmi-variant", resolve, (msg: string) => {
             console.error("Can't open IndexedDB cache", msg);
@@ -218,7 +218,7 @@ const filesDBPromise: Promise<DB> = (() => {
     });
 })();
 
-export const getVariantDB = () => variantDBPromise;
+export const getGameDB = () => gameDBPromise;
 export const getDataDB = () => dataDBPromise;
 export const getFilesDB = () => filesDBPromise;
 

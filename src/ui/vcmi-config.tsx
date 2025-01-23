@@ -1,13 +1,10 @@
 import { useDispatch, useSelector } from "react-redux";
-import { defaultConfig, getScreenResolution, State, uiSlice } from "../util/store";
+import { defaultConfig, getScreenResolution, resolutions, State, uiSlice } from "../util/store";
 import { useT } from "../i18n";
 import { useEffect, useState } from "preact/hooks";
 import { getFilesDB } from "../util/db";
 import { BlobReader, BlobWriter, Uint8ArrayReader, Uint8ArrayWriter, ZipReader, ZipWriter } from "@zip.js/zip.js";
 
-const resolutions = [
-    [0, 0], [800, 600], [1024, 768], [1280, 720], [1280, 1024], [1440, 900],
-];
 const widhtRegex = new RegExp("\"width\"\\s*:\\s*(\\d+)");
 const heightRegex = new RegExp("\"height\"\\s*:\\s*(\\d+)");
 

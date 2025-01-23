@@ -2,12 +2,14 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { useT } from "../i18n";
 import { clients, State, uiSlice } from "../util/store";
+import { VCMI_MODULE } from "../util/module";
 
 export function ClientSelect() {
     const t = useT();
     const client = useSelector((state: State) => state.ui.client);
     const dispatch = useDispatch();
     const stateLang = useSelector((state: State) => state.ui.lang);
+    const emVersion = VCMI_MODULE.getVCMIVersion();
 
     return <fieldset>
         <legend>{t("client")}</legend>
@@ -17,9 +19,10 @@ export function ClientSelect() {
                 dispatch(uiSlice.actions.setClient(e.currentTarget.value));
             }}>
                 {clients.map(({ version }) => {
-                    return <option value={version} selected={version === client} >{version}</option>;
+                    return <option value={version} selected={version === client}>{version}</option>;
                 })}
             </select>
+            {emVersion && <p class="text-gray-500">({emVersion})</p>}
         </div>
         <div class="field-row-stacked">
             <label for="language">{t("language")}</label>

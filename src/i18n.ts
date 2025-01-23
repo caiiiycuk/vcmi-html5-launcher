@@ -52,6 +52,11 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         scanning: "Сканирование",
         loading: "Загрузка",
         dlc_error: "Ошибка загрузки DLC",
+        all_files_found: "Все файлы уже загружены",
+        not_all_files_found: "Отсутствуют файлы:",
+        clearing_files: "Очистка файлов...",
+        clear: "очистить",
+        upload_missing_files: "Загрузить отсутствующие файлы с устройства:",
     },
     en: {
         title: "Heroes Of Might And Magic III",
@@ -99,6 +104,11 @@ const translations: {[lang: string]: {[key: string]: string} } = {
         unpacking: "Unpacking",
         scanning: "Scanning",
         loading: "Loading",
+        all_files_found: "All files already loaded",
+        not_all_files_found: "Missing files:",
+        upload_missing_files: "Upload missing files from device:",
+        clear: "clear",
+        clearing_files: "Clearing files...",
     },
 };
 

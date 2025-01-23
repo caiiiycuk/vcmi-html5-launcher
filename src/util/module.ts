@@ -13,8 +13,6 @@ export const DATA_SET: { [variant: string]: string[] } = {
 };
 
 export const VCMI_MODULE: {
-    variantZip?: File,
-    variantFiles: { [key: string]: Uint8Array },
     canvas?: HTMLCanvasElement,
     FS?: {
         createPath: (parent: string, dir: string) => void,
@@ -23,7 +21,6 @@ export const VCMI_MODULE: {
         readFile: (path: string) => Uint8Array,
         unlink: (path: string) => void,
     },
-    run?: () => void,
     callMain?: (args?: string[]) => void,
     instantiateWasm?: any,
     getPreloadedPackage?: (name: string, size: number) => ArrayBufferLike,
@@ -41,12 +38,12 @@ export const VCMI_MODULE: {
     _playMusic?: () => void,
     data?: [string, ArrayBuffer],
     localizedData?: [string, ArrayBuffer],
+    modsData?: [string, ArrayBuffer],
 } = resetModule();
 
 export function resetModule() {
     const loadedMusic: {[file: string]: boolean} = {};
     const module: typeof VCMI_MODULE = {
-        variantFiles: {},
         fsRead: (path) => {
             return module.FS!.readFile(path);
         },
@@ -101,22 +98,3 @@ export function resetModule() {
     (window as any).VCMI_MODULE = module;
     return module;
 }
-
-export function isDataSet(keys: string[]) {
-    keys = keys.map((key) => key.toLowerCase());
-    function haveAll(contents: string[]) {
-        for (const key of contents) {
-            if (keys.indexOf(key) === -1) {
-                return false;
-            }
-        }
-        return true;
-    }
-    for (const variant of Object.keys(DATA_SET)) {
-        if (haveAll(DATA_SET[variant])) {
-            return true;
-        }
-    }
-    return false;
-}
-

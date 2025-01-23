@@ -1,36 +1,33 @@
 import { useDispatch, useSelector } from "react-redux";
-import { variantsUrls, State, uiSlice } from "../util/store";
+import { State, uiSlice, VCMI_GAME_FILES } from "../util/store";
 import { useT } from "../i18n";
 import { useEffect, useState } from "preact/hooks";
-import { getVariantDB } from "../util/db";
-import { isDataSet, VCMI_MODULE } from "../util/module";
+import { getGameDB } from "../util/db";
 import { ClientSelect } from "./reusable";
+import { GameFiles } from "./game-files";
 
 export function DataSelect() {
     const t = useT();
     const dispatch = useDispatch();
-    const [dataType, setDataType] = useState<"file" | "db" | "none">("none");
-    const [variantInDb, setVariantInDB] = useState<boolean>(false);
     const [dbReady, setDBReady] = useState<boolean>(false);
     const [shortLegal, setShortLegal] = useState<boolean>(true);
-    const [dataSelected, setDataSelected] = useState(false);
-    const lang = useSelector((state: State) => state.ui.lang);
+    const gameFilesReady = useSelector((state: State) => state.ui.vcmiGameFilesReady);
 
     useEffect(() => {
         (async () => {
             try {
-                const db = await getVariantDB();
-                if (isDataSet(await db.keys())) {
-                    setVariantInDB(true);
-                    setDataType("db");
-                } else {
-                    setVariantInDB(false);
-                    setDataType("file");
-                }
+                const db = await getGameDB();
+                await db.forEach((key, value) => {
+                    key = key.substring(key.lastIndexOf("/") + 1).toLocaleLowerCase();
+                    if (key in VCMI_GAME_FILES) {
+                        VCMI_GAME_FILES[key].contents = value;
+                    }
+                });
             } catch (e) {
                 console.error(e);
             } finally {
                 setDBReady(true);
+                dispatch(uiSlice.actions.checkVcmiGameFilesReady());
             }
         })().catch((e) => {
             console.error(e);
@@ -68,69 +65,15 @@ export function DataSelect() {
                 </a>
             }
         </article>
-        {!dataSelected && <ClientSelect />}
-        {!dataSelected && <fieldset>
-            <legend>{t("data_source")}</legend>
-            <div class="field-row mb-4">
-                <input disabled={!variantInDb} checked={dataType === "db"} onChange={() => setDataType("db")}
-                    id="data-db" type="radio" name="data-source" />
-                <label for="data-db">{t("data_db")}</label>
-            </div>
-            <div class="field-row">
-                <input disabled={!dbReady} checked={dataType === "file"} onChange={() => setDataType("file")}
-                    id="data-provider" type="radio" name="data-provider" />
-                <label for="data-provider">{t("data_provider")}</label>
-            </div>
-            {dataType === "file" &&
-                <div class="ml-6 mt-4 flex flex-row gap-2 flex-wrap">
-                    <button class="archive-link" onClick={() => {
-                        window.open(variantsUrls[lang].complete, "_blank");
-                        setDataSelected(true);
-                    }}>
-                        <div class="complete-edition-link"></div>
-                    </button>
-                    <button class="archive-link link-disabled" onClick={() => { }}>
-                        <div class="hota-link"></div>
-                    </button>
-                    <button class="archive-link link-disabled" onClick={() => { }}>
-                        <div class="wog-link"></div>
-                    </button>
-                    <button class="archive-link link-disabled" onClick={() => { }}>
-                        <div class="chronicles-link"></div>
-                    </button>
-                    <button class="archive-link text-yellow-600" onClick={() => setDataSelected(true)}>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-12">
-                            <path d="M19.906 9c.382 0 .749.057 1.094.162V9a3 3 0 0 0-3-3h-3.879a.75.75 0 0
-                                1-.53-.22L11.47 3.66A2.25 2.25 0 0 0 9.879 3H6a3 3 0 0 0-3 3v3.162A3.756 3.756 0 0 1
-                                4.094 9h15.812ZM4.094 10.5a2.25 2.25 0 0 0-2.227 2.568l.857 6A2.25 2.25 0 0 0 4.951
-                                21H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-2.227-2.568H4.094Z" />
-                        </svg>
-
-                    </button>
-                </div>}
-        </fieldset>}
-        {dataSelected && <fieldset>
-            <div class="field-row">
-                <input disabled={!dbReady} checked={dataType === "file"}
-                    onChange={() => setDataType("file")}
-                    id="data-directory" type="radio" name="data-source" />
-                <label for="data-directory">{t("data_archive")}</label>
-            </div>
-            <div class="field-row">
-                <input class="ml-4" id="data-file" type="file" name="data-file"
-                    onChange={(e) => {
-                        if (e.currentTarget.files !== null && e.currentTarget.files.length > 0) {
-                            setDataType("file");
-                            VCMI_MODULE.variantZip = e.currentTarget.files[0];
-                        }
-                    }} />
-            </div>
-            <div class="mt-4 ml-4 font-bold">{t("data_archive_text")}</div>
-        </fieldset>}
+        <ClientSelect />
+        {dbReady && <GameFiles />}
         {dbReady &&
             <div class="flex flex-row gap-1">
                 <button class="min-w-4" onClick={() => window.open("https://t.me/dzhomm3", "_blank")}>
                     <p class="tg-link size-5 p-0 m-0"></p>
+                </button>
+                <button class="min-w-4" onClick={() => window.open("https://discord.gg/ZNj97WtjEq", "_blank")}>
+                    <p class="discord-link size-5 p-0 m-0"></p>
                 </button>
                 <button class="min-w-4" onClick={() => dispatch(uiSlice.actions.step("ABOUT"))}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -144,13 +87,9 @@ export function DataSelect() {
                 <div class="flex-grow"></div>
                 <button class="self-end"
                     onClick={() => {
-                        if (dataType === "db") {
-                            delete VCMI_MODULE.variantZip;
-                        }
-
                         dispatch(uiSlice.actions.step("LOADING_DATA"));
                     }}
-                    disabled={!dataSelected && dataType !== "db"}
+                    disabled={!gameFilesReady}
                 >
                     {t("next")}
                 </button>

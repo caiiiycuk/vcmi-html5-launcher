@@ -1,13 +1,13 @@
 import { useEffect, useState } from "preact/hooks";
 import { loadResource } from "../util/resource";
-import { State, uiSlice, getClient, unprefixedDataUrlPrefix, unprefixedDataUrl, unprefixedLocalizedDataUrl } from "../util/store";
+import { State, uiSlice, getClient, unprefixedDataUrlPrefix,
+    unprefixedDataUrl, unprefixedLocalizedDataUrl } from "../util/store";
 import { useDispatch, useSelector } from "react-redux";
 import { wasmInstantiate } from "../util/wasm";
 import { useT } from "../i18n";
-import { getDataDB, getVariantDB } from "../util/db";
-import { isDataSet, VCMI_MODULE } from "../util/module";
+import { getDataDB } from "../util/db";
+import { VCMI_MODULE } from "../util/module";
 import { ClientSelect } from "./reusable";
-import { BlobReader, Entry, Uint8ArrayWriter, ZipReader } from "@zip.js/zip.js";
 
 export function Loader(props: {
     resourceType: "datafile" | "wasm",
@@ -26,63 +26,14 @@ export function Loader(props: {
         setError(null);
         (async () => {
             if (props.resourceType === "datafile") {
-                const variant = await getVariantDB();
                 const db = await getDataDB();
-
-                // load variant
-                if (VCMI_MODULE.variantZip) {
-                    setFile(t("scanning") + " " + VCMI_MODULE.variantZip.name);
-                    const reader = new ZipReader(new BlobReader(VCMI_MODULE.variantZip));
-                    const entries: Entry[] = [];
-                    const files: string[] = [];
-                    try {
-                        for await (const next of reader.getEntriesGenerator()) {
-                            if (!next.directory) {
-                                entries.push(next);
-                                files.push(next.filename);
-                            }
-                        }
-                    } catch (e) {
-                        throw new Error(t("not_an_archive"));
-                    }
-                    if (!isDataSet(files)) {
-                        throw new Error(t("variant_is_not_supported"));
-                    }
-                    await variant.clear();
-
-                    entries.sort((a, b) => b.uncompressedSize - a.uncompressedSize);
-                    for (const next of entries) {
-                        if (!next.directory && next.getData && !next.filename.startsWith("__MACOSX")) {
-                            setFile(t("unpacking") + " " + next.filename);
-                            setProgress(0);
-                            const data = await next.getData(new Uint8ArrayWriter(), {
-                                onprogress: (progress, total) => {
-                                    setProgress(Math.round(progress / total * 100));
-                                    return undefined;
-                                },
-                            });
-                            VCMI_MODULE.variantFiles[next.filename] = data;
-                            await variant.put(next.filename, data);
-                        }
-                    }
-
-                    delete VCMI_MODULE.variantZip;
-                } else {
-                    await variant.forEach((key, value) => {
-                        VCMI_MODULE.variantFiles[key] = value;
-                    });
-                }
-
-                if (!isDataSet(Object.keys(VCMI_MODULE.variantFiles))) {
-                    throw new Error(t("variant_is_not_supported"));
-                }
 
                 // load data
                 const loadDataFile = async (dataUrl: string, dataKeyPrefix?: string) => {
                     const dataContentsUrl = dataUrl.substring(0, dataUrl.length - 3);
-                    const dataKey = (dataKeyPrefix ? dataKeyPrefix + ".data.js" : 
+                    const dataKey = (dataKeyPrefix ? dataKeyPrefix + ".data.js" :
                         dataUrl.substring(dataUrl.lastIndexOf("/") + 1));
-                    const dataContentsKey = (dataKeyPrefix ? dataKeyPrefix + ".data" : 
+                    const dataContentsKey = (dataKeyPrefix ? dataKeyPrefix + ".data" :
                         dataContentsUrl.substring(dataContentsUrl.lastIndexOf("/") + 1));
                     let [data, dataContents] = await Promise.all([db.get(dataKey),
                         db.get(dataContentsKey)]);
@@ -104,7 +55,7 @@ export function Loader(props: {
                 // load vcmi data
                 {
                     setFile("VCMI/Data");
-                    VCMI_MODULE.data = await loadDataFile(dataUrl, 
+                    VCMI_MODULE.data = await loadDataFile(dataUrl,
                         dataUrl === unprefixedDataUrl ? unprefixedDataUrlPrefix : undefined);
                 }
 
@@ -112,8 +63,15 @@ export function Loader(props: {
                 {
                     const key = lang === "ru" ? "ru" : "en";
                     setFile("VCMI/" + key + "-Data");
-                    VCMI_MODULE.localizedData = await loadDataFile(localizedDataUrl[key], 
-                        localizedDataUrl[key] === unprefixedLocalizedDataUrl[key] ? unprefixedDataUrlPrefix + "-" + key : undefined);
+                    VCMI_MODULE.localizedData = await loadDataFile(localizedDataUrl[key],
+                        localizedDataUrl[key] === unprefixedLocalizedDataUrl[key] ?
+                            unprefixedDataUrlPrefix + "-" + key : undefined);
+                }
+
+                // load mods
+                if (client.mods) {
+                    setFile("VCMI/Mods");
+                    VCMI_MODULE.modsData = await loadDataFile(client.mods);
                 }
 
                 VCMI_MODULE.getPreloadedPackage = (name: any, size: any) => {
@@ -121,6 +79,9 @@ export function Loader(props: {
                     if (name === "vcmi.data") {
                         data = VCMI_MODULE.data![1];
                         delete VCMI_MODULE.data;
+                    } else if (name.indexOf(".mods.") !== -1) {
+                        data = VCMI_MODULE.modsData![1];
+                        delete VCMI_MODULE.modsData;
                     } else {
                         data = VCMI_MODULE.localizedData![1];
                         delete VCMI_MODULE.localizedData;
@@ -131,6 +92,9 @@ export function Loader(props: {
                 const Module = VCMI_MODULE;
                 eval(Module.data![0]);
                 eval(Module.localizedData![0]);
+                if (client.mods) {
+                    eval(Module.modsData![0]);
+                }
                 dispatch(uiSlice.actions.step("READY_TO_RUN"));
             } else if (props.resourceType === "wasm") {
                 setFile("VCMI/WebAssembly");
