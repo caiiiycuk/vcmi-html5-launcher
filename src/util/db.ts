@@ -101,7 +101,7 @@ class IndexedDB implements DB {
             }
 
             const transaction = this.db.transaction(this.storeName, "readwrite");
-            const request = transaction.objectStore(this.storeName).put(data.buffer, key);
+            const request = transaction.objectStore(this.storeName).put(new Blob([data.buffer]), key);
             request.onerror = (e) => {
                 reject(new Error("Can't put key '" + key + "'"));
                 console.error(e);
@@ -118,11 +118,17 @@ class IndexedDB implements DB {
             }
 
             const transaction = this.db.transaction(this.storeName, "readonly");
-            const request = transaction.objectStore(this.storeName).get(key) as IDBRequest<ArrayBuffer>;
+            const request = transaction.objectStore(this.storeName).get(key) as IDBRequest<ArrayBuffer | Blob>;
             request.onerror = () => reject(new Error("Can't read value for key '" + key + "'"));
             request.onsuccess = () => {
                 if (request.result) {
-                    resolve(new Uint8Array(request.result));
+                    if (request.result instanceof Blob) {
+                        request.result.arrayBuffer().then((buffer) => {
+                            resolve(new Uint8Array(buffer));
+                        }).catch(reject);
+                    } else {
+                        resolve(new Uint8Array(request.result));
+                    }
                 } else {
                     resolve(null);
                 }

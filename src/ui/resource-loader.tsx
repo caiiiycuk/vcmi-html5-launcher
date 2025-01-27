@@ -69,9 +69,10 @@ export function Loader(props: {
                 }
 
                 // load mods
-                if (client.mods) {
+                const modsUrl = new URLSearchParams(location.search).get("modsUrl") ?? client.mods;
+                if (modsUrl) {
                     setFile("VCMI/Mods");
-                    VCMI_MODULE.modsData = await loadDataFile(client.mods);
+                    VCMI_MODULE.modsData = await loadDataFile(modsUrl);
                 }
 
                 VCMI_MODULE.getPreloadedPackage = (name: any, size: any) => {
@@ -92,7 +93,7 @@ export function Loader(props: {
                 const Module = VCMI_MODULE;
                 eval(Module.data![0]);
                 eval(Module.localizedData![0]);
-                if (client.mods) {
+                if (modsUrl) {
                     eval(Module.modsData![0]);
                 }
                 dispatch(uiSlice.actions.step("READY_TO_RUN"));
