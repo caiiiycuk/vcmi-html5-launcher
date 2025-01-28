@@ -86,6 +86,13 @@ class IndexedDB implements DB {
         }
     }
 
+    private async resultToUint8Array(result: ArrayBuffer | Blob): Promise<Uint8Array> {
+        if (result instanceof Blob) {
+            return new Uint8Array(await result.arrayBuffer());
+        }
+        return new Uint8Array(result);
+    }
+
     public close() {
         if (this.db !== null) {
             this.db.close();
@@ -122,13 +129,7 @@ class IndexedDB implements DB {
             request.onerror = () => reject(new Error("Can't read value for key '" + key + "'"));
             request.onsuccess = () => {
                 if (request.result) {
-                    if (request.result instanceof Blob) {
-                        request.result.arrayBuffer().then((buffer) => {
-                            resolve(new Uint8Array(buffer));
-                        }).catch(reject);
-                    } else {
-                        resolve(new Uint8Array(request.result));
-                    }
+                    resolve(this.resultToUint8Array(request.result));
                 } else {
                     resolve(null);
                 }
@@ -165,35 +166,26 @@ class IndexedDB implements DB {
             }
 
             const transaction = this.db.transaction(this.storeName, "readonly");
-            const request = transaction.objectStore(this.storeName).index("key").getAllKeys();
+            const request = transaction.objectStore(this.storeName).getAllKeys();
             request.onerror = reject;
             request.onsuccess = (event) => {
-                const keys = (event.target as any).result as string[];
-                resolve(keys);
+                if (request.result) {
+                    resolve(request.result as string[]);
+                } else {
+                    resolve([]);
+                }
             };
         });
     }
 
-    public forEach(each: (key: string, value: Uint8Array) => void): Promise<void> {
-        return new Promise<void>((resolve, reject) => {
-            if (this.db === null) {
-                resolve();
-                return;
+    public async forEach(each: (key: string, value: Uint8Array) => void): Promise<void> {
+        const keys = await this.keys();
+        for (const key of keys) {
+            const value = await this.get(key);
+            if (value) {
+                each(key, value);
             }
-
-            const transaction = this.db.transaction(this.storeName, "readonly");
-            const request = transaction.objectStore(this.storeName).openCursor();
-            request.onerror = reject;
-            request.onsuccess = (event) => {
-                const cursor = (event.target as any).result as IDBCursorWithValue;
-                if (cursor) {
-                    each(cursor.key.toString(), new Uint8Array(cursor.value));
-                    cursor.continue();
-                } else {
-                    resolve();
-                }
-            };
-        });
+        }
     }
 }
 
