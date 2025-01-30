@@ -77,7 +77,7 @@ export function resetModule() {
                 return;
             }
             loadedMusic[file] = true;
-            const url = "/vcmi/launcher/vcmi" + file;
+            const url = "https://cdn.dos.zone/custom/vcmi/async" + file;
             const music = await loadResource(url, "arraybuffer") as ArrayBuffer;
             module.FS!.unlink(file);
             module.fsWrite(file, new Uint8Array(music));
