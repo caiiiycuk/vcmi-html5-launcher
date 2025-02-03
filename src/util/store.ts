@@ -22,6 +22,13 @@ export const clients: {
     mods?: string,
 }[] = [
     {
+        version: "1.6.4-wasm-0",
+        wasmUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmiclient.1.6.4-0.js",
+        dataUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.data.1.6.4.js",
+        mods: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.mods.data.1.6.3.js",
+        localizedDataUrl: unprefixedLocalizedDataUrl,
+    },
+    {
         version: "1.6.3-wasm-4",
         wasmUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmiclient.1.6.3-0.js",
         dataUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.data.1.6.3.js",
@@ -41,7 +48,7 @@ export const clients: {
         clients.push({
             version: "bundled (dev)",
             wasmUrl: "vcmi/vcmiclient.js",
-            dataUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.data.1.6.3.js",
+            dataUrl: "vcmi/vcmi.data.js",
             mods: "vcmi/vcmi.mods.data.js",
             localizedDataUrl: unprefixedLocalizedDataUrl,
         });
