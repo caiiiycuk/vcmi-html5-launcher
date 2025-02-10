@@ -39,6 +39,8 @@ export const VCMI_MODULE: {
     data?: [string, ArrayBuffer],
     localizedData?: [string, ArrayBuffer],
     modsData?: [string, ArrayBuffer],
+    getWidth?: () => number,
+    getHeight?: () => number,
 } = resetModule();
 
 export function resetModule() {

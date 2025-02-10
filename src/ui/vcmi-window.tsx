@@ -73,6 +73,8 @@ export function VCMIWindow() {
                     onResize();
                 };
 
+                VCMI_MODULE.getWidth = () => width;
+                VCMI_MODULE.getHeight = () => height;
                 VCMI_MODULE.callMain!(["--disable-video"]);
                 // VCMI_MODULE.callMain!(["--onlyAI", "-s", "--spectate-skip-battle"]);
                 // VCMI_MODULE.callMain!(["--onlyAI", "-s"]);

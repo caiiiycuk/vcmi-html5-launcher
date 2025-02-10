@@ -1946,6 +1946,11 @@ signal-exit@^4.0.1:
   resolved "https://registry.yarnpkg.com/signal-exit/-/signal-exit-4.1.0.tgz#952188c1cbd546070e2dd20d0f41c0ae0530cb04"
   integrity sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==
 
+simple-keyboard@^3.1.11:
+  version "3.8.32"
+  resolved "https://registry.yarnpkg.com/simple-keyboard/-/simple-keyboard-3.8.32.tgz#23db9eacedfcdbaa1d1c4ad133f6df0ad29e6e7b"
+  integrity sha512-mXJSAZoEoVJLoKkqpfGp34thXtzmxNBhyz1Yx79f3IhuEkYBdrWtSPosMYMfAxPKlxZqMZo2XAvZk/lvKgvttw==
+
 source-map-js@^1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/source-map-js/-/source-map-js-1.2.1.tgz#1ce5650fddd87abc099eda37dcff024c2667ae46"
