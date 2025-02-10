@@ -3,19 +3,16 @@ import { State, VCMI_GAME_FILES } from "../util/store";
 import { useSelector } from "react-redux";
 import { VCMI_MODULE } from "../util/module";
 import { getFilesDB } from "../util/db";
-import { parseResolution } from "./vcmi-config";
 import { createKeyboard } from "./keyboard";
+import { getResolution } from "./vcmi-config";
 
 export function VCMIWindow() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const config = useSelector((state: State) => state.ui.config);
     const client = useSelector((state: State) => state.ui.client);
+    const resolutionIndex = useSelector((state: State) => state.ui.resolutionIndex);
 
-    let [width, height] = parseResolution(config);
-    if (width === null || height === null) {
-        width = 800;
-        height = 600;
-    }
+    const [width, height] = getResolution(resolutionIndex);
 
     useEffect(() => {
         const canvas = canvasRef.current;

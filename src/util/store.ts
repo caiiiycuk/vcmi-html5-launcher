@@ -22,7 +22,7 @@ export const clients: {
     mods?: string,
 }[] = [
     {
-        version: "1.6.5-wasm-1",
+        version: "1.6.5-wasm-2",
         wasmUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmiclient.1.6.5-0.js",
         dataUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.data.1.6.5.js",
         mods: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.mods.data.1.6.3.js",
@@ -95,18 +95,13 @@ export const VCMI_GAME_FILES: {
 };
 
 
-export const resolutions = [
-    [0, 0], [800, 600], [1024, 768], [1280, 720], [1280, 1024], [1440, 900],
-];
-const maxSize = 1440;
-const minSize = 600;
-
 const initialUiState: {
     lang: "ru" | "en",
     step: "MODULE_SELECT" | "DATA_SELECT" | "LOADING_DATA" | "READY_TO_RUN" | "STARTED" | "ABOUT",
     config: string,
     client: string,
     vcmiGameFilesReady: boolean,
+    resolutionIndex: number,
 } = {
     lang: (params.get("lang") ?? localStorage.getItem("vcmi.lang") ??
         navigator.language).startsWith("ru") ? "ru" : "en",
@@ -114,6 +109,7 @@ const initialUiState: {
     config: localStorage.getItem("vcmi.config") ?? defaultConfig(),
     client: localStorage.getItem("vcmi.client") ?? clients[0].version,
     vcmiGameFilesReady: false,
+    resolutionIndex: Number.parseInt(localStorage.getItem("vcmi.resolutionIndex") ?? "0") ?? 0,
 };
 
 export const uiSlice = createSlice({
@@ -130,6 +126,10 @@ export const uiSlice = createSlice({
         setConfig: (state, a: { payload: string }) => {
             state.config = a.payload;
             localStorage.setItem("vcmi.config", a.payload);
+        },
+        setResolutionIndex: (state, a: { payload: number }) => {
+            state.resolutionIndex = a.payload;
+            localStorage.setItem("vcmi.resolutionIndex", a.payload.toString());
         },
         setClient: (state, a: { payload: string }) => {
             state.client = a.payload;
@@ -171,7 +171,6 @@ export interface State {
 }
 
 export function defaultConfig() {
-    const [widht, height] = getScreenResolution();
     return `{
     "general" : {
         "language" : "${navigator.language.startsWith("ru") ? "russian" : "english"}",
@@ -179,8 +178,6 @@ export function defaultConfig() {
     },
     "video" : {
         "resolution" : {
-            "width" : ${widht},
-            "height" : ${height},
             "scaling" : 100
         }
     },
@@ -191,35 +188,6 @@ export function defaultConfig() {
         "hostname" : "netherlands.dos.zone"
     }
 }`;
-}
-
-export function getScreenResolution() {
-    const dpi = Math.max(1, Math.min(devicePixelRatio, 2));
-    let width = Math.round(innerWidth * dpi);
-    let height = Math.round(innerHeight * dpi);
-    if (width > maxSize) {
-        height = Math.round(height * maxSize / width);
-        width = maxSize;
-    }
-    if (height > maxSize) {
-        width = Math.round(width * maxSize / height);
-        height = maxSize;
-    }
-    if (width < minSize) {
-        height = Math.round(height * minSize / width);
-        width = minSize;
-    }
-    if (height < minSize) {
-        width = Math.round(width * height / minSize);
-        height = minSize;
-    }
-
-    // if (width <= resolutions[1][0] || height <= resolutions[1][1]) {
-    //     width = resolutions[1][0];
-    //     height = resolutions[1][1];
-    // }
-
-    return [width, height];
 }
 
 export function getClient(version: string) {

@@ -1,25 +1,32 @@
 import { useDispatch, useSelector } from "react-redux";
-import { defaultConfig, getScreenResolution, resolutions, State, uiSlice } from "../util/store";
+import { defaultConfig, State, uiSlice } from "../util/store";
 import { useT } from "../i18n";
 import { useEffect, useState } from "preact/hooks";
 import { getFilesDB } from "../util/db";
 import { BlobReader, BlobWriter, Uint8ArrayReader, Uint8ArrayWriter, ZipReader, ZipWriter } from "@zip.js/zip.js";
 
-const widhtRegex = new RegExp("\"width\"\\s*:\\s*(\\d+)");
-const heightRegex = new RegExp("\"height\"\\s*:\\s*(\\d+)");
+const resolutions = [
+    [0, 0], [800, 600], [1024, 768], [1280, 720], [1280, 1024], [1440, 900],
+];
+const maxSize = 1440;
+const minSize = 600;
 
 export function VCMIConfig() {
     const dispatch = useDispatch();
     const t = useT();
     const config = useSelector((state: State) => state.ui.config);
-    const [index, setIndex] = useState<number>(0);
+    const index = useSelector((state: State) => state.ui.resolutionIndex);
+    // eslint-disable-next-line no-unused-vars
+    const [_w, setWidth] = useState<number>(0);
+    // eslint-disable-next-line no-unused-vars
+    const [_h, setHeight] = useState<number>(0);
     const [downloadLink, setDownloadLink] = useState<string | null>(null);
     const [dlcLoading, setDlcLoading] = useState<boolean>(false);
     const [dlcError, setDlcError] = useState<string | null>(null);
     const [dlcFile, setDlcFile] = useState<string>("");
 
     function resetConfig() {
-        setIndex(0);
+        dispatch(uiSlice.actions.setResolutionIndex(0));
         dispatch(uiSlice.actions.setConfig(defaultConfig()));
 
         getFilesDB()
@@ -31,29 +38,22 @@ export function VCMIConfig() {
     }
 
     useEffect(() => {
-        const [w, h] = parseResolution(config);
-        if (w && h) {
-            const index = resolutions.findIndex((r) => r[0] === w && r[1] === h);
-            if (index !== -1) {
-                setIndex(index);
-                return;
-            }
-        } else {
-            resetConfig();
-        }
-    }, []);
-
-    useEffect(() => {
         if (index === 0) {
             const root = document.getElementById("app");
             const observer = new ResizeObserver(() => {
-                dispatch(uiSlice.actions.setConfig(updateConfigResolution(config, 0)));
+                const [w, h] = getResolution(index);
+                setWidth(w);
+                setHeight(h);
             });
             observer.observe(root!);
             return () => {
                 observer.unobserve(root!);
             };
         }
+
+        const [w, h] = getResolution(index);
+        setWidth(w);
+        setHeight(h);
     }, [index]);
 
     return <div class="flex flex-col gap-2">
@@ -62,12 +62,11 @@ export function VCMIConfig() {
             <select id="resolution" onChange={(e) => {
                 const index = Number.parseInt(e.currentTarget.value);
                 if (index >= 0 && index < resolutions.length) {
-                    setIndex(index);
-                    dispatch(uiSlice.actions.setConfig(updateConfigResolution(config, index)));
+                    dispatch(uiSlice.actions.setResolutionIndex(index));
                 }
             }}>
                 {resolutions.map(([w, h], i) => {
-                    const [screenWidth, screenHeight] = getScreenResolution();
+                    const [screenWidth, screenHeight] = getResolution(0);
                     const text = i === 0 ? t("fit_screen") + " — " + screenWidth + "x" + screenHeight :
                         w + "x" + h;
                     return <option value={i} selected={index === i} >{text}</option>;
@@ -149,21 +148,36 @@ export function VCMIConfig() {
 }
 
 
-function updateConfigResolution(config: string, index: number) {
-    const [screenWidth, screenHeight] = getScreenResolution();
-    const [w, h] = index === 0 ? [screenWidth, screenHeight] : resolutions[index];
-    return config
-        .replace(widhtRegex, "\"width\": " + w)
-        .replace(heightRegex, "\"height\": " + h);
-}
+export function getResolution(index: number) {
+    function getScreenResolution() {
+        const dpi = Math.max(1, Math.min(devicePixelRatio, 2));
+        let width = Math.round(innerWidth * dpi);
+        let height = Math.round(innerHeight * dpi);
+        if (width > maxSize) {
+            height = Math.round(height * maxSize / width);
+            width = maxSize;
+        }
+        if (height > maxSize) {
+            width = Math.round(width * maxSize / height);
+            height = maxSize;
+        }
+        if (width < minSize) {
+            height = Math.round(height * minSize / width);
+            width = minSize;
+        }
+        if (height < minSize) {
+            width = Math.round(width * height / minSize);
+            height = minSize;
+        }
 
-export function parseResolution(config: string) {
-    const wMatch = config.match(widhtRegex);
-    const hMatch = config.match(heightRegex);
+        // if (width <= resolutions[1][0] || height <= resolutions[1][1]) {
+        //     width = resolutions[1][0];
+        //     height = resolutions[1][1];
+        // }
 
-    if (wMatch && hMatch) {
-        return [Number.parseInt(wMatch[1]), Number.parseInt(hMatch[1])];
+        return [width, height];
     }
 
-    return [null, null];
+    const [screenWidth, screenHeight] = getScreenResolution();
+    return index === 0 ? [screenWidth, screenHeight] : resolutions[index];
 }
