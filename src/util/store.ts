@@ -22,7 +22,7 @@ export const clients: {
     mods?: string,
 }[] = [
     {
-        version: "1.6.5-wasm-0",
+        version: "1.6.5-wasm-1",
         wasmUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmiclient.1.6.5-0.js",
         dataUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.data.1.6.5.js",
         mods: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.mods.data.1.6.3.js",

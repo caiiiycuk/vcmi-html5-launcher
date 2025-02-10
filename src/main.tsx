@@ -12,7 +12,6 @@ import { DataSelect } from "./ui/data-select";
 import { VCMIConfig } from "./ui/vcmi-config";
 import { About } from "./ui/about";
 import { ModuleSelect } from "./ui/module-select";
-import { createKeyboard } from "./ui/keyboard";
 
 function Page() {
     const state = useSelector((state: State) => state.ui.step);
@@ -73,8 +72,6 @@ function App() {
     } catch (e) {
         // ignore
     }
-
-    createKeyboard();
 
     render(
         <Provider store={store}>

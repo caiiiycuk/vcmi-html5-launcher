@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { VCMI_MODULE } from "../util/module";
 import { getFilesDB } from "../util/db";
 import { parseResolution } from "./vcmi-config";
+import { createKeyboard } from "./keyboard";
 
 export function VCMIWindow() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -79,6 +80,8 @@ export function VCMIWindow() {
                 // VCMI_MODULE.callMain!(["--onlyAI", "-s", "--spectate-skip-battle"]);
                 // VCMI_MODULE.callMain!(["--onlyAI", "-s"]);
                 console.log("Started, VCMI version:", VCMI_MODULE.getVCMIVersion());
+
+                createKeyboard();
             })().catch(console.error);
 
             const preventDefault = (e: Event) => e.preventDefault();

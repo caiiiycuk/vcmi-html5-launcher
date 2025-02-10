@@ -55,7 +55,6 @@ export function createKeyboard() {
         useMouseEvents: true,
     });
 
-
     const keyboardDiv = document.getElementById("keyboard") as HTMLDivElement;
     const keyboardContainer = document.getElementById("keyboard-container") as HTMLDivElement;
 
