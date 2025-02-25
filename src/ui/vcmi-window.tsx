@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "preact/hooks";
-import { State, VCMI_GAME_FILES } from "../util/store";
+import { getClient, State, VCMI_GAME_FILES } from "../util/store";
 import { useSelector } from "react-redux";
 import { VCMI_MODULE } from "../util/module";
 import { getFilesDB } from "../util/db";
@@ -10,6 +10,7 @@ export function VCMIWindow() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const config = useSelector((state: State) => state.ui.config);
     const client = useSelector((state: State) => state.ui.client);
+    const noData = getClient(client).noData === true;
     const resolutionIndex = useSelector((state: State) => state.ui.resolutionIndex);
 
     const [width, height] = getResolution(resolutionIndex);
@@ -34,12 +35,14 @@ export function VCMIWindow() {
 
             (async () => {
                 VCMI_MODULE.canvas = canvas;
-                for (const next of Object.keys(VCMI_GAME_FILES)) {
-                    if (VCMI_GAME_FILES[next].contents !== null) {
-                        VCMI_MODULE.fsWrite(VCMI_GAME_FILES[next].name, VCMI_GAME_FILES[next].contents!);
-                        delete VCMI_GAME_FILES[next];
-                    } else {
-                        throw new Error("File not found: " + VCMI_GAME_FILES[next].name);
+                if (!noData) {
+                    for (const next of Object.keys(VCMI_GAME_FILES)) {
+                        if (VCMI_GAME_FILES[next].contents !== null) {
+                            VCMI_MODULE.fsWrite(VCMI_GAME_FILES[next].name, VCMI_GAME_FILES[next].contents!);
+                            delete VCMI_GAME_FILES[next];
+                        } else {
+                            throw new Error("File not found: " + VCMI_GAME_FILES[next].name);
+                        }
                     }
                 }
 
@@ -74,6 +77,7 @@ export function VCMIWindow() {
                 VCMI_MODULE.getWidth = () => width;
                 VCMI_MODULE.getHeight = () => height;
                 VCMI_MODULE.callMain!(["--disable-video"]);
+                // VCMI_MODULE.callMain!(["--disable-video", "--testmap", "Maps/H3demoRUSsod"]);
                 // VCMI_MODULE.callMain!(["--onlyAI", "-s", "--spectate-skip-battle"]);
                 // VCMI_MODULE.callMain!(["--onlyAI", "-s"]);
                 console.log("Started, VCMI version:", VCMI_MODULE.getVCMIVersion());

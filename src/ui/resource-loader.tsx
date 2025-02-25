@@ -60,7 +60,7 @@ export function Loader(props: {
                 }
 
                 // load localized data
-                {
+                if (localizedDataUrl) {
                     const key = lang === "ru" ? "ru" : "en";
                     setFile("VCMI/" + key + "-Data");
                     VCMI_MODULE.localizedData = await loadDataFile(localizedDataUrl[key],
@@ -92,7 +92,9 @@ export function Loader(props: {
 
                 const Module = VCMI_MODULE;
                 eval(Module.data![0]);
-                eval(Module.localizedData![0]);
+                if (localizedDataUrl) {
+                    eval(Module.localizedData![0]);
+                }
                 if (modsUrl) {
                     eval(Module.modsData![0]);
                 }

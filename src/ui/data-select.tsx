@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from "react-redux";
-import { State, uiSlice, VCMI_GAME_FILES } from "../util/store";
+import { getClient, State, uiSlice, VCMI_GAME_FILES } from "../util/store";
 import { useT } from "../i18n";
 import { useEffect, useState } from "preact/hooks";
 import { getGameDB } from "../util/db";
@@ -12,8 +12,15 @@ export function DataSelect() {
     const [dbReady, setDBReady] = useState<boolean>(false);
     const [shortLegal, setShortLegal] = useState<boolean>(true);
     const gameFilesReady = useSelector((state: State) => state.ui.vcmiGameFilesReady);
+    const noData = getClient(useSelector((state: State) => state.ui.client)).noData === true;
 
     useEffect(() => {
+        if (noData) {
+            setDBReady(true);
+            dispatch(uiSlice.actions.step("LOADING_DATA"));
+            return;
+        }
+
         (async () => {
             try {
                 const db = await getGameDB();

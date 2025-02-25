@@ -3,6 +3,8 @@ import { resetModule } from "./module";
 import { getFilesDB } from "./db";
 
 const params = new URLSearchParams(location.search);
+const demo = params.get("demo") === "1";
+const storedClient = localStorage.getItem("vcmi.client");
 
 export const unprefixedDataUrlPrefix = "1.5.7-wasm";
 export const unprefixedDataUrl = "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.data.js";
@@ -15,11 +17,12 @@ export const clients: {
     version: string,
     wasmUrl: string,
     dataUrl: string,
-    localizedDataUrl: {
+    localizedDataUrl?: {
         en: string,
         ru: string,
     },
     mods?: string,
+    noData?: boolean,
 }[] = [
     {
         version: "1.6.5-wasm-2",
@@ -51,7 +54,16 @@ export const clients: {
 ];
 
 (() => {
-    if (location.hostname === "localhost" || params.get("token") === "BlackKnight") {
+    if (demo) {
+        clients.push({
+            version: "DEMO",
+            wasmUrl: "https://br.cdn.dos.zone/vcmi/vcmiclient.demo.__",
+            dataUrl: "https://br.cdn.dos.zone/vcmi/vcmi.demo-ru.data.__",
+            noData: true,
+        })
+    }
+
+    if (location.hostname === "localhost") {
         clients.push({
             version: "bundled (dev)",
             wasmUrl: "vcmi/vcmiclient.js",
@@ -107,7 +119,8 @@ const initialUiState: {
         navigator.language).startsWith("ru") ? "ru" : "en",
     step: "MODULE_SELECT",
     config: localStorage.getItem("vcmi.config") ?? defaultConfig(),
-    client: localStorage.getItem("vcmi.client") ?? clients[0].version,
+    client: demo ? "DEMO" : 
+        (storedClient === "DEMO" ? clients[0].version : storedClient) ?? clients[0].version,
     vcmiGameFilesReady: false,
     resolutionIndex: Number.parseInt(localStorage.getItem("vcmi.resolutionIndex") ?? "0") ?? 0,
 };
