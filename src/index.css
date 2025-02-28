@@ -43,6 +43,11 @@ textarea {
     min-height: auto;
 }
 
+.button-demo {
+    @apply relative size-24 flex items-center justify-center p-1;
+    margin: auto;
+}
+
 
 button {
     @apply cursor-pointer;

@@ -57,8 +57,10 @@ export const clients: {
     if (demo) {
         clients.push({
             version: "DEMO",
-            wasmUrl: "https://br.cdn.dos.zone/vcmi/vcmiclient.demo.__",
-            dataUrl: "https://br.cdn.dos.zone/vcmi/vcmi.demo-ru.data.__",
+            wasmUrl: "https://br.cdn.dos.zone/vcmi/vcmiclient.demo-1.__",
+            dataUrl: location.href.indexOf("/ru/") > -1 ? 
+                "https://br.cdn.dos.zone/vcmi/vcmi.demo-ru-1.data.__" : 
+                "https://br.cdn.dos.zone/vcmi/vcmi.demo-en-1.data.__",
             noData: true,
         })
     }

@@ -25,8 +25,11 @@ export const VCMI_MODULE: {
     instantiateWasm?: any,
     getPreloadedPackage?: (name: string, size: number) => ArrayBufferLike,
     HEAPU8?: Uint8Array,
+    _malloc?: (size: number) => number,
     _free?: (ptr: number) => void,
     UTF8ToString?: (stringPtr: number) => string;
+    lengthBytesUTF8?: (str: string) => number;
+    stringToUTF8?: (str: string, ptr: number, size: number) => void;
     fsRead: (path: string) => Uint8Array,
     fsWrite: (path: string, contents: Uint8Array) => void,
     fsUpdate: (filePtr: number, bufferPtr: number, length: number) => void;
@@ -41,6 +44,9 @@ export const VCMI_MODULE: {
     modsData?: [string, ArrayBuffer],
     getWidth?: () => number,
     getHeight?: () => number,
+    hsLock?: Promise<void>,
+    loadHighscores: (isCampaing: boolean, callback: (json: number) => void) => void,
+    mainMenuQuit: () => void,
 } = resetModule();
 
 export function resetModule() {
@@ -92,6 +98,34 @@ export function resetModule() {
             }
 
             return "Function _getVCMIVersion not found.";
+        },
+        loadHighscores: (isCampaing, callback) => {
+            module.hsLock = (async () => {
+                if (module.hsLock) {
+                    await module.hsLock;
+                }
+
+                const hs = (await (await fetch("https://d5dn8hh4ivlobv6682ep.apigw.yandexcloud.net/vcmi/hs/get?isCampaing=" + 
+                    (isCampaing ? "1" : "0") + "&limit=11")).json()).hs ?? [];
+                for (const h of hs) {
+                    h[isCampaing ? "campaignName" : "scenarioName"] = h["map"];
+                    delete h["map"];
+                }
+                const json = JSON.stringify(hs);
+                const len = module.lengthBytesUTF8!(json) + 1;
+                const ptr = module._malloc!(len);
+                module.stringToUTF8!(json, ptr, len);
+                callback(ptr);
+                module._free!(ptr);
+            })().catch((e) => {
+                callback(0);
+                console.error("Failed to load highscores", e);
+            });
+        },
+        mainMenuQuit: () => {
+            window.location.href.indexOf("/ru/") !== -1 ?
+                window.open("https://sec.dos.zone/ru/homm3", "_self") :
+                window.open("https://sec.dos.zone/homm3", "_self");
         },
     };
     module.websocket = {

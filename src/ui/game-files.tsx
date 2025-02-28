@@ -95,7 +95,7 @@ export function GameFiles() {
             {filesReady && !loading && !error && <div>
                 {t("all_files_found")}&nbsp;
                 <span class="link text-blue-500 underline cursor-pointer" onClick={() => {
-                    (async function() {
+                    (async function () {
                         try {
                             setLoading(true);
                             setFile(t("clearing_files"));
@@ -116,43 +116,52 @@ export function GameFiles() {
                     })().catch(console.error);
                 }}>({t("clear")})</span>
             </div>}
-            {!filesReady && !loading && !error && <div>
-                {t("not_all_files_found")}
-                <ul>
-                    {notLoadedFiles.map((file) => {
-                        return <li>{VCMI_GAME_FILES[file].name}</li>;
-                    })}
-                </ul>
-                {t("upload_missing_files")}
-                <input ref={gameFileRef} class="hidden" type="file"
-                    name="game-file" multiple={true} onChange={doLoadFiles} />
-                <input ref={gameDirRef} class="hidden" type="file"
-                    name="dir-file" {...inputOptions} onChange={doLoadFiles} />
-                <div class="flex mt-2 gap-2">
-                    <button class="button-icon text-yellow-600" onClick={() => {
-                        gameFileRef.current?.click();
-                    }}>
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                            stroke-width="1.5" stroke="currentColor" class="size-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0
+            {!filesReady && !loading && !error && <div class="flex flex-row gap-2 items-center">
+                <div class="">
+                    {t("not_all_files_found")}
+                    <ul>
+                        {notLoadedFiles.map((file) => {
+                            return <li>{VCMI_GAME_FILES[file].name}</li>;
+                        })}
+                    </ul>
+                    {t("upload_missing_files")}
+                    <input ref={gameFileRef} class="hidden" type="file"
+                        name="game-file" multiple={true} onChange={doLoadFiles} />
+                    <input ref={gameDirRef} class="hidden" type="file"
+                        name="dir-file" {...inputOptions} onChange={doLoadFiles} />
+                    <div class="flex mt-2 gap-2">
+                        <button class="button-icon text-yellow-600" onClick={() => {
+                            gameFileRef.current?.click();
+                        }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                stroke-width="1.5" stroke="currentColor" class="size-6">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0
                                 0-3.375-3.375h-1.5A1.125
                                 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m3.75
                                 9v6m3-3H9m1.5-12H5.625c-.621
                                 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621
                                 0 1.125-.504
                                 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
-                        </svg>
-                    </button>
-                    <button class="button-icon text-yellow-600" onClick={() => {
-                        gameDirRef.current?.click();
-                    }}>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
-                            <path d="M19.906 9c.382 0 .749.057 1.094.162V9a3 3 0 0 0-3-3h-3.879a.75.75 0 0
+                            </svg>
+                        </button>
+                        <button class="button-icon text-yellow-600" onClick={() => {
+                            gameDirRef.current?.click();
+                        }}>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                                <path d="M19.906 9c.382 0 .749.057 1.094.162V9a3 3 0 0 0-3-3h-3.879a.75.75 0 0
                                 1-.53-.22L11.47 3.66A2.25 2.25 0 0 0 9.879 3H6a3 3 0 0 0-3 3v3.162A3.756 3.756 0 0 1
                                 4.094 9h15.812ZM4.094 10.5a2.25 2.25 0 0 0-2.227 2.568l.857 6A2.25 2.25 0 0 0 4.951
                                 21H19.05a2.25 2.25 0 0 0 2.227-1.932l.857-6a2.25 2.25 0 0 0-2.227-2.568H4.094Z" />
-                        </svg>
-                    </button>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="m-auto border-solid border-0 border-l pl-4 ">
+                        <button class="button-demo size-12 text-yellow-600" onClick={() => {
+                            window.open(location.pathname + "?demo=1&title=HoMM3 DEMO", "_self");
+                        }}>
+                            <img src="demo.jpg" alt="demo" class="size-full" />
+                        </button>
                 </div>
             </div>}
             {loading && !error && <article class="pt-0" role="tabpanel">
