@@ -123,9 +123,9 @@ export function resetModule() {
             });
         },
         mainMenuQuit: () => {
-            window.location.href.indexOf("/ru/") !== -1 ?
-                window.open("https://sec.dos.zone/ru/homm3", "_self") :
-                window.open("https://sec.dos.zone/homm3", "_self");
+            const params = new URLSearchParams(location.search);
+            params.delete("demo");
+            location.search = params.toString();
         },
     };
     module.websocket = {
