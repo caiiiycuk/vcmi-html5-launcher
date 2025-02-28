@@ -58,11 +58,11 @@ export const clients: {
         clients.push({
             version: "DEMO",
             wasmUrl: "https://br.cdn.dos.zone/vcmi/vcmiclient.demo-1.__",
-            dataUrl: params.get("lang") === "ru" ?
-                "https://br.cdn.dos.zone/vcmi/vcmi.demo-ru-1.data.__" : 
+            dataUrl: getInitLang() === "ru" ?
+                "https://br.cdn.dos.zone/vcmi/vcmi.demo-ru-1.data.__" :
                 "https://br.cdn.dos.zone/vcmi/vcmi.demo-en-1.data.__",
             noData: true,
-        })
+        });
     }
 
     if (location.hostname === "localhost") {
@@ -121,7 +121,7 @@ const initialUiState: {
         navigator.language).startsWith("ru") ? "ru" : "en",
     step: "MODULE_SELECT",
     config: localStorage.getItem("vcmi.config") ?? defaultConfig(),
-    client: demo ? "DEMO" : 
+    client: demo ? "DEMO" :
         (storedClient === "DEMO" ? clients[0].version : storedClient) ?? clients[0].version,
     vcmiGameFilesReady: false,
     resolutionIndex: Number.parseInt(localStorage.getItem("vcmi.resolutionIndex") ?? "0") ?? 0,
@@ -207,4 +207,9 @@ export function defaultConfig() {
 
 export function getClient(version: string) {
     return clients.find((client) => client.version === version) ?? clients[0];
+}
+
+export function getInitLang() {
+    return (params.get("lang") ?? localStorage.getItem("vcmi.lang") ??
+        navigator.language).startsWith("ru") ? "ru" : "en";
 }

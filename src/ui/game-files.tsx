@@ -1,6 +1,6 @@
 import { useT } from "../i18n";
 import { useDispatch, useSelector } from "react-redux";
-import { State, uiSlice, VCMI_GAME_FILES } from "../util/store";
+import { getInitLang, State, uiSlice, VCMI_GAME_FILES } from "../util/store";
 import { getGameDB } from "../util/db";
 import { useRef, useState } from "preact/hooks";
 import { Entry, Uint8ArrayWriter } from "@zip.js/zip.js";
@@ -95,7 +95,7 @@ export function GameFiles() {
             {filesReady && !loading && !error && <div>
                 {t("all_files_found")}&nbsp;
                 <span class="link text-blue-500 underline cursor-pointer" onClick={() => {
-                    (async function () {
+                    (async function() {
                         try {
                             setLoading(true);
                             setFile(t("clearing_files"));
@@ -157,11 +157,11 @@ export function GameFiles() {
                     </div>
                 </div>
                 <div class="m-auto border-solid border-0 border-l pl-4 ">
-                        <button class="button-demo size-12 text-yellow-600" onClick={() => {
-                            window.open(location.pathname + "?demo=1&title=HoMM3 DEMO", "_self");
-                        }}>
-                            <img src="demo.jpg" alt="demo" class="size-full" />
-                        </button>
+                    <button class="button-demo size-12 text-yellow-600" onClick={() => {
+                        window.open(location.pathname + "?demo=1&title=DEMO&lang=" + getInitLang(), "_self");
+                    }}>
+                        <img src="demo.jpg" alt="demo" class="size-full" />
+                    </button>
                 </div>
             </div>}
             {loading && !error && <article class="pt-0" role="tabpanel">

@@ -105,7 +105,7 @@ export function resetModule() {
                     await module.hsLock;
                 }
 
-                const hs = (await (await fetch("https://d5dn8hh4ivlobv6682ep.apigw.yandexcloud.net/vcmi/hs/get?isCampaing=" + 
+                const hs = (await (await fetch("https://d5dn8hh4ivlobv6682ep.apigw.yandexcloud.net/vcmi/hs/get?isCampaing=" +
                     (isCampaing ? "1" : "0") + "&limit=11")).json()).hs ?? [];
                 for (const h of hs) {
                     h[isCampaing ? "campaignName" : "scenarioName"] = h["map"];
