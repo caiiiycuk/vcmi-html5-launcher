@@ -25,16 +25,16 @@ export const clients: {
     noData?: boolean,
 }[] = [
     {
-        version: "1.6.7-wasm-0",
-        wasmUrl: "https://br.cdn.dos.zone/vcmi/vcmiclient-1.6.7-0.__",
-        dataUrl: "https://br.cdn.dos.zone/vcmi/vcmi.data.1.6.7.__",
+        version: "1.6.5-wasm-2",
+        wasmUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmiclient.1.6.5-0.js",
+        dataUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.data.1.6.5.js",
         mods: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.mods.data.1.6.3.js",
         localizedDataUrl: unprefixedLocalizedDataUrl,
     },
     {
-        version: "1.6.5-wasm-2",
-        wasmUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmiclient.1.6.5-0.js",
-        dataUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.data.1.6.5.js",
+        version: "1.6.7-wasm-0",
+        wasmUrl: "https://br.cdn.dos.zone/vcmi/vcmiclient-1.6.7-0.__",
+        dataUrl: "https://br.cdn.dos.zone/vcmi/vcmi.data.1.6.7.__",
         mods: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.mods.data.1.6.3.js",
         localizedDataUrl: unprefixedLocalizedDataUrl,
     },
