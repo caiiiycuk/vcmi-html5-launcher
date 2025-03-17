@@ -10,12 +10,13 @@ export function ClientSelect() {
     const dispatch = useDispatch();
     const stateLang = useSelector((state: State) => state.ui.lang);
     const emVersion = VCMI_MODULE.getVCMIVersion();
+    const clientDisabled = new URLSearchParams(location.search).get("client") !== null;
 
     return <fieldset>
         <legend>{t("client")}</legend>
         <div class="field-row-stacked">
             <label for="client">{t("version")}</label>
-            <select id="client" onChange={(e) => {
+            <select id="client" disabled={clientDisabled} onChange={(e) => {
                 dispatch(uiSlice.actions.setClient(e.currentTarget.value));
             }}>
                 {clients.map(({ version }) => {

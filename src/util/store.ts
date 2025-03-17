@@ -4,7 +4,7 @@ import { getFilesDB } from "./db";
 
 const params = new URLSearchParams(location.search);
 const demo = params.get("demo") === "1";
-const storedClient = localStorage.getItem("vcmi.client");
+const storedClient = params.get("client") ?? localStorage.getItem("vcmi.client");
 
 export const unprefixedDataUrlPrefix = "1.5.7-wasm";
 export const unprefixedDataUrl = "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.data.js";
@@ -32,7 +32,7 @@ export const clients: {
         localizedDataUrl: unprefixedLocalizedDataUrl,
     },
     {
-        version: "1.6.7-wasm-0",
+        version: "1.6.7-wasm-0-experimental",
         wasmUrl: "https://br.cdn.dos.zone/vcmi/vcmiclient-1.6.7-0.__",
         dataUrl: "https://br.cdn.dos.zone/vcmi/vcmi.data.1.6.7.__",
         mods: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.mods.data.1.6.3.js",
