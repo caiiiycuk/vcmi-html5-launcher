@@ -2,9 +2,16 @@ import { configureStore, createSlice } from "@reduxjs/toolkit";
 import { resetModule } from "./module";
 import { getFilesDB } from "./db";
 
+const clientMappings: { [key: string]: string } = {
+    "1.6.7-wasm-0-experimental": "1.6.7-wasm-1",
+}
+
 const params = new URLSearchParams(location.search);
 const demo = params.get("demo") === "1";
-const storedClient = params.get("client") ?? localStorage.getItem("vcmi.client");
+const storedClient = (() => {
+    const client = params.get("client") ?? localStorage.getItem("vcmi.client");
+    return client ? clientMappings[client] ?? client : null;
+})();
 
 export const unprefixedDataUrlPrefix = "1.5.7-wasm";
 export const unprefixedDataUrl = "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.data.js";
@@ -25,16 +32,16 @@ export const clients: {
     noData?: boolean,
 }[] = [
     {
-        version: "1.6.5-wasm-2",
-        wasmUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmiclient.1.6.5-0.js",
-        dataUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.data.1.6.5.js",
+        version: "1.6.7-wasm-1",
+        wasmUrl: "https://br.cdn.dos.zone/vcmi/vcmiclient-1.6.7-1.__",
+        dataUrl: "https://br.cdn.dos.zone/vcmi/vcmi.data.1.6.7.__",
         mods: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.mods.data.1.6.3.js",
         localizedDataUrl: unprefixedLocalizedDataUrl,
     },
     {
-        version: "1.6.7-wasm-0-experimental",
-        wasmUrl: "https://br.cdn.dos.zone/vcmi/vcmiclient-1.6.7-0.__",
-        dataUrl: "https://br.cdn.dos.zone/vcmi/vcmi.data.1.6.7.__",
+        version: "1.6.5-wasm-2",
+        wasmUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmiclient.1.6.5-0.js",
+        dataUrl: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.data.1.6.5.js",
         mods: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.mods.data.1.6.3.js",
         localizedDataUrl: unprefixedLocalizedDataUrl,
     },
