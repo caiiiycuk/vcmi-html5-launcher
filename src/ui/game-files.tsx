@@ -130,7 +130,7 @@ export function GameFiles() {
                     <input ref={gameDirRef} class="hidden" type="file"
                         name="dir-file" {...inputOptions} onChange={doLoadFiles} />
                     <div class="flex mt-2 gap-2">
-                        <button class="button-icon text-yellow-600" onClick={() => {
+                        <button class="button-icon text-yellow-600" title={t("source_files_zip_hint")} onClick={() => {
                             gameFileRef.current?.click();
                         }}>
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -144,7 +144,7 @@ export function GameFiles() {
                                 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
                             </svg>
                         </button>
-                        <button class="button-icon text-yellow-600" onClick={() => {
+                        <button class="button-icon text-yellow-600" title={t("source_files_dir_hint")} onClick={() => {
                             gameDirRef.current?.click();
                         }}>
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
@@ -157,7 +157,7 @@ export function GameFiles() {
                     </div>
                 </div>
                 <div class="m-auto border-solid border-0 border-l pl-4 ">
-                    <button class="button-demo size-12 text-yellow-600" onClick={() => {
+                    <button class="button-demo size-12 text-yellow-600" title={t("demo_hint")} onClick={() => {
                         window.open(location.pathname + "?demo=1&title=DEMO&lang=" + getInitLang(), "_self");
                     }}>
                         <img src="demo.jpg" alt="demo" class="size-full" />
