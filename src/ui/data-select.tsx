@@ -42,10 +42,10 @@ export function DataSelect() {
     }, []);
 
     return <div class="flex flex-col">
-        <article class="pt-0" role="tabpanel">
+        <article class="py-0" role="tabpanel">
             {!shortLegal &&
                 <>
-                    <h3 class="my-4">{t("legal")}</h3>
+                    <h3 class="my-4">{t("about")}</h3>
                     <p>
                         {t("legal_text")}
                     </p>
@@ -57,19 +57,18 @@ export function DataSelect() {
                     </p>
                 </>
             }
-            <div class="field-row mt-4">
-                <input checked type="checkbox" disabled id="confirm_legal_copy" />
-                <label class="font-bold" for="confirm_legal_copy">
-                    {t("confirm_legal_copy")}
-                </label>
-            </div>
             {shortLegal &&
-                <a href="#" class="absolute px-1 -bottom-1 right-4 bg-white" onClick={(e) => {
-                    e.preventDefault();
-                    setShortLegal(false);
-                }}>
-                    {t("more")}
-                </a>
+                <>
+                    <p>
+                        {t("legal_text_short")}
+                    </p>
+                    <a href="#" class="absolute px-1 -bottom-2 right-4 bg-white" onClick={(e) => {
+                        e.preventDefault();
+                        setShortLegal(false);
+                    }}>
+                        {t("more")}
+                    </a>
+                </>
             }
         </article>
         <ClientSelect />

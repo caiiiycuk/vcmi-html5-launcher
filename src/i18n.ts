@@ -7,9 +7,9 @@ import { State } from "./util/store";
 const translations: {[lang: string]: {[key: string]: string} } = {
     ru: {
         title: "Герои Меча и Магии III",
-        confirm_legal_copy: "Я подтверждаю, что у меня есть легальная копия игры.",
-        legal: "Права",
-        legal_text: "Игра основана на движке с открытым исходныи кодом VCMI[1]. Чтобы начать играть необходимо загрузить файлы с данными оригинальной игры HoMM3[2] в виде ZIP архива либо каталога. Вы не можете продолжить если Вы не приобретали оригинальную игру.",
+        legal: "О проекте",
+        legal_text: "Игра основана на движке с открытым исходныи кодом VCMI[1]. Чтобы начать играть необходимо загрузить файлы с данными оригинальной игры HoMM3[2] в виде архива, файлов или каталога.",
+        legal_text_short: "Игра основана на движке с открытым исходныи кодом VCMI.",
         data_source: "Файлы игры",
         data_archive: "Архив с файлами игры",
         data_archive_text: "Нажмите 'Выберите файл' и укажите архив который вы только что скачали. Архив должен содержать файлы игры в корневой папке.",
@@ -63,9 +63,8 @@ const translations: {[lang: string]: {[key: string]: string} } = {
     },
     en: {
         title: "Heroes Of Might And Magic III",
-        confirm_legal_copy: "I confirm that I have a legal copy of the game.",
-        legal: "Legal",
-        legal_text: "The game based on open-source engine VCMI[1]. To start playing, you need to upload data files of the original HoMM3 game[2] as an ZIP archive or catalog. You can't continue if you have not purchased the original game.",
+        legal_text: "The game based on open-source engine VCMI[1]. To start playing, you need to upload data files of the original HoMM3 game[2] as an archive, files or catalog.",
+        legal_text_short: "The game based on open-source engine VCMI.",
         data_source: "Game files",
         data_archive: "Archive with game files",
         data_archive_text: "Click 'Select file' and select the archive you just downloaded. The archive must contain the game files in the root folder.",
