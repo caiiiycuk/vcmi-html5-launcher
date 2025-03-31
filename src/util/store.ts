@@ -2,16 +2,9 @@ import { configureStore, createSlice } from "@reduxjs/toolkit";
 import { resetModule } from "./module";
 import { getFilesDB } from "./db";
 
-const clientMappings: { [key: string]: string } = {
-    "1.6.7-wasm-0-experimental": "1.6.7-wasm-1",
-}
-
 const params = new URLSearchParams(location.search);
 const demo = params.get("demo") === "1";
-const storedClient = (() => {
-    const client = params.get("client") ?? localStorage.getItem("vcmi.client");
-    return client ? clientMappings[client] ?? client : null;
-})();
+const storedClient = localStorage.getItem("vcmi.client");
 
 export const unprefixedDataUrlPrefix = "1.5.7-wasm";
 export const unprefixedDataUrl = "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.data.js";

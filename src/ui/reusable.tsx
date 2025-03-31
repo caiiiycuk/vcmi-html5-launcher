@@ -10,7 +10,7 @@ export function ClientSelect() {
     const dispatch = useDispatch();
     const stateLang = useSelector((state: State) => state.ui.lang);
     const emVersion = VCMI_MODULE.getVCMIVersion();
-    const clientDisabled = new URLSearchParams(location.search).get("client") !== null;
+    const clientDisabled = client === "DEMO";
 
     return <fieldset>
         <legend>{t("client")}</legend>
