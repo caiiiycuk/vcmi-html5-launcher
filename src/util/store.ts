@@ -64,7 +64,7 @@ export const clients: {
     if (demo) {
         clients.push({
             version: "DEMO",
-            wasmUrl: "https://br.cdn.dos.zone/vcmi/vcmiclient.demo-1.__",
+            wasmUrl: "https://br.cdn.dos.zone/vcmi/vcmiclient.demo-2.__",
             dataUrl: getInitLang() === "ru" ?
                 "https://br.cdn.dos.zone/vcmi/vcmi.demo-ru-1.data.__" :
                 "https://br.cdn.dos.zone/vcmi/vcmi.demo-en-1.data.__",
