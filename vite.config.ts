@@ -9,7 +9,7 @@ export default defineConfig({
         port: 3000,
         host: "0.0.0.0",
         cors: true,
-        https: false,
+        https: true,
         headers: {
             "Cross-Origin-Opener-Policy": "same-origin",
             "Cross-Origin-Embedder-Policy": "require-corp",

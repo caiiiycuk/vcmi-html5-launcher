@@ -25,6 +25,13 @@ export const clients: {
     noData?: boolean,
 }[] = [
     {
+        version: "1.6.7-wasm-2",
+        wasmUrl: "https://br.cdn.dos.zone/vcmi/vcmiclient-1.6.7-2.__",
+        dataUrl: "https://br.cdn.dos.zone/vcmi/vcmi.data.1.6.7.__",
+        mods: "https://caiiiycuk.github.io/vcmi-wasm/vcmi/vcmi.mods.data.1.6.3.js",
+        localizedDataUrl: unprefixedLocalizedDataUrl,
+    },
+    {
         version: "1.6.7-wasm-1",
         wasmUrl: "https://br.cdn.dos.zone/vcmi/vcmiclient-1.6.7-1.__",
         dataUrl: "https://br.cdn.dos.zone/vcmi/vcmi.data.1.6.7.__",
@@ -72,7 +79,7 @@ export const clients: {
         });
     }
 
-    if (location.hostname === "localhost") {
+    if (location.hostname === "localhost" || location.hostname === "test.js-dos.com") {
         clients.push({
             version: "bundled (dev)",
             wasmUrl: "vcmi/vcmiclient.js",
