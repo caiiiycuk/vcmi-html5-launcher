@@ -1,5 +1,11 @@
 import { getFilesDB } from "./db";
 import { loadResource } from "./resource";
+import { compress, compressBound, writeUint32 } from "./mini-lz4";
+import { store } from "./store";
+
+const v8Endpoint = "https://d5dn8hh4ivlobv6682ep.apigw.yandexcloud.net";
+const vcmiHsGet = v8Endpoint + "/vcmi/hs/get";
+const presignPut = v8Endpoint + "/presign-put";
 
 export const DATA_SET: { [variant: string]: string[] } = {
     "complete_edition": [
@@ -47,10 +53,11 @@ export const VCMI_MODULE: {
     hsLock?: Promise<void>,
     loadHighscores: (isCampaing: boolean, callback: (json: number) => void) => void,
     mainMenuQuit: () => void,
+    cloudSaves: Map<string, Uint8Array>;
 } = resetModule();
 
 export function resetModule() {
-    const loadedMusic: {[file: string]: boolean} = {};
+    const loadedMusic: { [file: string]: boolean } = {};
     const module: typeof VCMI_MODULE = {
         fsRead: (path) => {
             return module.FS!.readFile(path);
@@ -70,14 +77,96 @@ export function resetModule() {
             VCMI_MODULE.FS!.createDataFile(file, null, contents, true, true, true);
         },
         fsUpdate: async (filePtr, bufferPtr, length) => {
-            const file = module.UTF8ToString!(filePtr);
-            if (length <= 0) {
-                console.warn("Trying to save empty file", file);
-                return;
+            document.getElementById("save-toast")?.classList.remove("opacity-0", "hidden");
+            try {
+                const file = module.UTF8ToString!(filePtr);
+                if (length <= 0) {
+                    console.warn("Trying to save empty file", file);
+                    return;
+                }
+                const db = await getFilesDB();
+                const contents = module.HEAPU8!.slice(bufferPtr, bufferPtr + length);
+                try {
+                    await db.put(file, contents);
+                } catch (e) {
+                    console.error(e);
+                }
+                module._free!(bufferPtr);
+
+                const { token, premium } = store.getState().ui;
+                if (file.endsWith(".vsgm1") && premium) {
+                    const encoder = new TextEncoder();
+                    module.cloudSaves.set(file, contents);
+                    const count = module.cloudSaves.size;
+                    let contentsSize = 4;
+                    module.cloudSaves.forEach((value, key) => {
+                        contentsSize += 4 + 4 + encoder.encode(key).length + value.length;
+                    });
+
+                    const payload = new Uint8Array(contentsSize);
+                    writeUint32(payload, count, 0);
+
+                    let offset = 4;
+                    module.cloudSaves.forEach((value, key) => {
+                        const encodedKey = encoder.encode(key);
+                        writeUint32(payload, encodedKey.length, offset);
+                        offset += 4;
+                        writeUint32(payload, value.length, offset);
+                        offset += 4;
+
+                        payload.set(encodedKey, offset);
+                        offset += encodedKey.length;
+
+                        payload.set(value, offset);
+                        offset += value.length;
+                    });
+
+                    const boundSize = compressBound(payload.length);
+                    const compressed = new Uint8Array(boundSize + 4);
+                    writeUint32(compressed, payload.length, 0);
+
+                    const compressedSize = compress(payload, compressed, 4, compressed.length);
+                    const upload = compressed.slice(0, compressedSize);
+
+                    const presign = await (await fetch(presignPut + "?path=" +
+                        encodeURIComponent("vcmi.saves") + "&token=" + token)).json();
+
+                    if (!presign.success) {
+                        console.error("Failed to generate presign put request", presign);
+                        return;
+                    }
+                    const post = presign.post as {
+                        url: string,
+                        fields: {
+                            Policy: string,
+                            "X-Amz-Algorithm": string,
+                            "X-Amz-Credential": string,
+                            "X-Amz-Date": string,
+                            "X-Amz-Signature": string,
+                            bucket: string,
+                            key: string,
+                        },
+                    };
+
+                    const formData = new FormData();
+                    Object.entries(post.fields).forEach(([k, v]) => {
+                        formData.append(k, v);
+                    });
+                    formData.append("acl", "public-read");
+                    formData.append("file", new Blob([upload]));
+
+                    const response = await fetch(post.url, {
+                        method: "post",
+                        body: formData,
+                    });
+
+                    if (response.status !== 200 && response.status !== 204) {
+                        console.error("Unable to put changes: " + response.statusText);
+                    }
+                }
+            } finally {
+                document.getElementById("save-toast")?.classList.add("opacity-0");
             }
-            const db = await getFilesDB();
-            db.put(file, module.HEAPU8!.slice(bufferPtr, bufferPtr + length)).catch(console.error);
-            module._free!(bufferPtr);
         },
         loadMusic: async (filePtr) => {
             const file = module.UTF8ToString!(filePtr).substring(1);
@@ -105,7 +194,7 @@ export function resetModule() {
                     await module.hsLock;
                 }
 
-                const hs = (await (await fetch("https://d5dn8hh4ivlobv6682ep.apigw.yandexcloud.net/vcmi/hs/get?isCampaing=" +
+                const hs = (await (await fetch(vcmiHsGet + "?isCampaing=" +
                     (isCampaing ? "1" : "0") + "&limit=11")).json()).hs ?? [];
                 for (const h of hs) {
                     h[isCampaing ? "campaignName" : "scenarioName"] = h["map"];
@@ -127,6 +216,7 @@ export function resetModule() {
             params.delete("demo");
             location.search = params.toString();
         },
+        cloudSaves: new Map(),
     };
     module.websocket = {
         url: "wss://",

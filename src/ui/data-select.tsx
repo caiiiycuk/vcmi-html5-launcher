@@ -5,6 +5,7 @@ import { useEffect, useState } from "preact/hooks";
 import { getGameDB } from "../util/db";
 import { ClientSelect } from "./reusable";
 import { GameFiles } from "./game-files";
+import { Auth } from "./auth";
 
 export function DataSelect() {
     const t = useT();
@@ -71,6 +72,7 @@ export function DataSelect() {
                 </>
             }
         </article>
+        <Auth />
         <ClientSelect />
         {dbReady && <GameFiles />}
         {dbReady &&

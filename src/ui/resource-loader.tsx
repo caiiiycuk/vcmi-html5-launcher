@@ -1,13 +1,16 @@
 import { useEffect, useState } from "preact/hooks";
 import { loadResource } from "../util/resource";
-import { State, uiSlice, getClient, unprefixedDataUrlPrefix,
-    unprefixedDataUrl, unprefixedLocalizedDataUrl } from "../util/store";
+import {
+    State, uiSlice, getClient, unprefixedDataUrlPrefix,
+    unprefixedDataUrl, unprefixedLocalizedDataUrl,
+} from "../util/store";
 import { useDispatch, useSelector } from "react-redux";
 import { wasmInstantiate } from "../util/wasm";
 import { useT } from "../i18n";
-import { getDataDB } from "../util/db";
+import { getDataDB, getFilesDB } from "../util/db";
 import { VCMI_MODULE } from "../util/module";
 import { ClientSelect } from "./reusable";
+import { readUint32, uncompress } from "../util/mini-lz4";
 
 export function Loader(props: {
     resourceType: "datafile" | "wasm",
@@ -22,6 +25,10 @@ export function Loader(props: {
     const localizedDataUrl = client.localizedDataUrl;
     const dispatch = useDispatch();
     const t = useT();
+
+    const premium = useSelector((state: State) => state.ui.premium);
+    const email = useSelector((state: State) => state.ui.email);
+
     useEffect(() => {
         setError(null);
         (async () => {
@@ -98,6 +105,44 @@ export function Loader(props: {
                 if (modsUrl) {
                     eval(Module.modsData![0]);
                 }
+
+
+                if (premium && email) {
+                    try {
+                        const response = (await fetch(
+                            "https://storage.yandexcloud.net/doszone-uploads/personal-v2/cloud/" +
+                            email + "/vcmi.saves", {
+                                cache: "no-cache",
+                            }));
+                        if (response.status === 200) {
+                            const files = await getFilesDB();
+                            const decoder = new TextDecoder();
+                            const compressed = new Uint8Array(await response.arrayBuffer());
+                            const uncompressedSize = readUint32(compressed, 0);
+                            const uncompressed = new Uint8Array(uncompressedSize);
+
+                            if (uncompress(compressed, uncompressed, 4) === uncompressedSize) {
+                                const count = readUint32(uncompressed, 0);
+                                let offset = 4;
+                                for (let i = 0; i < count; i++) {
+                                    const keyLength = readUint32(uncompressed, offset);
+                                    offset += 4;
+                                    const valueLength = readUint32(uncompressed, offset);
+                                    offset += 4;
+                                    const key = decoder.decode(uncompressed.slice(offset, offset + keyLength));
+                                    offset += keyLength;
+                                    const value = uncompressed.slice(offset, offset + valueLength);
+                                    offset += valueLength;
+                                    await files.put(key, value);
+                                    VCMI_MODULE.cloudSaves.set(key, value);
+                                }
+                            }
+                        }
+                    } catch (e) {
+                        // ignore
+                    }
+                }
+
                 dispatch(uiSlice.actions.step("READY_TO_RUN"));
             } else if (props.resourceType === "wasm") {
                 setFile("VCMI/WebAssembly");

@@ -137,6 +137,10 @@ const initialUiState: {
     client: string,
     vcmiGameFilesReady: boolean,
     resolutionIndex: number,
+    token: string | null,
+    name: string | null,
+    email: string | null,
+    premium: boolean,
 } = {
     lang: (params.get("lang") ?? localStorage.getItem("vcmi.lang") ??
         navigator.language).startsWith("ru") ? "ru" : "en",
@@ -146,6 +150,10 @@ const initialUiState: {
         (storedClient === "DEMO" ? clients[0].version : storedClient) ?? clients[0].version,
     vcmiGameFilesReady: false,
     resolutionIndex: Number.parseInt(localStorage.getItem("vcmi.resolutionIndex") ?? "0") ?? 0,
+    token: null,
+    name: null,
+    email: null,
+    premium: false,
 };
 
 export const uiSlice = createSlice({
@@ -181,6 +189,42 @@ export const uiSlice = createSlice({
                 return VCMI_GAME_FILES[key].contents === null;
             }).length === 0;
         },
+        setToken: (state, a: { payload: string | null }) => {
+            state.token = a.payload;
+
+            if (state.token && state.token.length === 5) {
+                (async () => {
+                    const response = await fetch("https://cloud.js-dos.com/token/get?id=" + state.token);
+                    const data = await response.json();
+                    if (data.token) {
+                        localStorage.setItem("vcmi.token", data.token);
+                        store.dispatch(uiSlice.actions.setName(data.name ?? data.email));
+                        store.dispatch(uiSlice.actions.setPremium(data.premium));
+                        store.dispatch(uiSlice.actions.setEmail(data.email));
+                    } else {
+                        localStorage.removeItem("vcmi.token");
+                        store.dispatch(uiSlice.actions.setName(null));
+                        store.dispatch(uiSlice.actions.setPremium(false));
+                        store.dispatch(uiSlice.actions.setEmail(null));
+                    }
+                })().catch(() => {
+                    store.dispatch(uiSlice.actions.setToken(""));
+                });
+            } else {
+                state.name = null;
+                state.premium = false;
+                localStorage.removeItem("vcmi.token");
+            }
+        },
+        setName: (state, a: { payload: string | null}) => {
+            state.name = a.payload;
+        },
+        setPremium: (state, a: { payload: boolean }) => {
+            state.premium = a.payload;
+        },
+        setEmail: (state, a: { payload: string | null }) => {
+            state.email = a.payload;
+        },
     },
 });
 
@@ -190,6 +234,19 @@ export const store = (() => {
             ui: uiSlice.reducer,
         },
     });
+
+    const cachedToken = localStorage.getItem("vcmi.token");
+    if (cachedToken) {
+        store.dispatch(uiSlice.actions.setToken(cachedToken));
+    } else {
+        const account = localStorage.getItem("jsdos.8.cached.jsdos.account");
+        if (account) {
+            const accountJson = JSON.parse(account);
+            if (accountJson.token) {
+                store.dispatch(uiSlice.actions.setToken(accountJson.token));
+            }
+        }
+    }
 
     (async () => {
         const db = await getFilesDB();

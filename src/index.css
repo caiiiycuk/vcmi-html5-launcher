@@ -70,6 +70,10 @@ button {
     flex-shrink: 0;
 }
 
+#save-toast {
+    z-index: 9999;
+}
+
 /*!
  * 
  *   simple-keyboard v3.1.11
