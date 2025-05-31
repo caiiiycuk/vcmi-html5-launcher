@@ -134,7 +134,12 @@ export function Loader(props: {
                                     const value = uncompressed.slice(offset, offset + valueLength);
                                     offset += valueLength;
                                     await files.put(key, value);
-                                    VCMI_MODULE.cloudSaves.set(key, value);
+                                    if (key.indexOf("/Autosave/") === -1) {
+                                        VCMI_MODULE.cloudSaves.set(key, value);
+                                        console.log("adding savegame", key, Math.round(value.length / 1024), "kb");
+                                    } else {
+                                        console.log("ignoring autosave", key, Math.round(value.length / 1024), "kb");
+                                    }
                                 }
                             }
                         }

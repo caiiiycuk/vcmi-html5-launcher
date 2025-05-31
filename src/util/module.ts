@@ -94,7 +94,7 @@ export function resetModule() {
                 module._free!(bufferPtr);
 
                 const { token, premium } = store.getState().ui;
-                if (file.endsWith(".vsgm1") && premium) {
+                if (file.endsWith(".vsgm1") && premium && file.indexOf("/Autosave/") === -1) {
                     const encoder = new TextEncoder();
                     module.cloudSaves.set(file, contents);
                     const count = module.cloudSaves.size;
